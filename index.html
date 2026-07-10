@@ -40,46 +40,13 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=2.0">
+  <link rel="stylesheet" href="css/style.css?v=2.1">
 </head>
 <body>
   <div class="app">
     <main class="dashboard">
       <section class="panel panel--home is-active" data-tab-panel="home" id="tabPanelHome" aria-label="홈">
         <div class="home-hero">
-          <article class="hero-card fade-in">
-            <p class="hero-card__greeting">
-              <span id="heroGreetingEmoji" aria-hidden="true">🌤</span>
-              <span id="heroGreetingText">좋은 아침입니다.</span>
-            </p>
-            <h2 class="hero-card__name" id="heroNickname">회원님</h2>
-
-            <div class="hero-card__condition">
-              <div class="hero-card__condition-top">
-                <span class="hero-card__condition-label">오늘 컨디션</span>
-                <span class="hero-card__condition-value"><span id="heroMindEnergy">45</span>%</span>
-              </div>
-              <div class="hero-card__condition-bar">
-                <div class="hero-card__condition-fill" id="heroMindEnergyBar"></div>
-              </div>
-              <p class="hero-card__condition-delta" id="heroMindDelta" aria-live="polite"></p>
-            </div>
-
-            <div class="hero-card__missions">
-              <h3 class="hero-card__missions-title">오늘의 미션</h3>
-              <ul class="mission-list" id="missionList">
-                <li class="mission-list__item" id="mission-aiCoaching">□ AI 코칭</li>
-                <li class="mission-list__item" id="mission-breathe">□ 호흡</li>
-                <li class="mission-list__item" id="mission-journal">□ 감사일기</li>
-              </ul>
-              <p class="hero-card__missions-reward" id="missionReward">보상 +40XP</p>
-            </div>
-
-            <button class="btn btn--primary btn--hero-start" id="startTodayBtn" type="button">
-              오늘 시작하기
-            </button>
-          </article>
-
           <div class="home-hero__brand">
             <button class="home-hero__logo mindly-character" id="mindlyCharacter" type="button" aria-label="Mindly 소개">
               <img src="assets/images/care.png" alt="" class="home-hero__logo-img" width="72" height="72">
@@ -115,6 +82,39 @@
               <span class="streak-badge__label">일 연속</span>
             </div>
           </div>
+
+          <article class="hero-card fade-in">
+            <p class="hero-card__greeting">
+              <span id="heroGreetingEmoji" aria-hidden="true">🌤</span>
+              <span id="heroGreetingText">좋은 아침입니다.</span>
+            </p>
+            <h2 class="hero-card__name" id="heroNickname">회원님</h2>
+
+            <div class="hero-card__condition">
+              <div class="hero-card__condition-top">
+                <span class="hero-card__condition-label">오늘 컨디션</span>
+                <span class="hero-card__condition-value"><span id="heroMindEnergy">45</span>%</span>
+              </div>
+              <div class="hero-card__condition-bar">
+                <div class="hero-card__condition-fill" id="heroMindEnergyBar"></div>
+              </div>
+              <p class="hero-card__condition-delta" id="heroMindDelta" aria-live="polite"></p>
+            </div>
+
+            <div class="hero-card__missions">
+              <h3 class="hero-card__missions-title">오늘의 미션</h3>
+              <ul class="mission-list" id="missionList">
+                <li class="mission-list__item" id="mission-aiCoaching">□ AI 코칭</li>
+                <li class="mission-list__item" id="mission-breathe">□ 호흡</li>
+                <li class="mission-list__item" id="mission-journal">□ 감사일기</li>
+              </ul>
+              <p class="hero-card__missions-reward" id="missionReward">보상 +40XP</p>
+            </div>
+
+            <button class="btn btn--primary btn--hero-start" id="startTodayBtn" type="button">
+              오늘 시작하기
+            </button>
+          </article>
 
           <p class="home-hero__quote" id="dailyQuote" aria-live="polite"></p>
 

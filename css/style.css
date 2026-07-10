@@ -124,6 +124,11 @@ body {
   grid-template-columns: 1fr 1fr;
   gap: 0.5rem;
   width: 100%;
+  margin-bottom: 0.25rem;
+}
+
+.hero-card {
+  margin-top: 0.25rem;
 }
 
 .home-hero__stats .stat-card {
