@@ -1,5 +1,5 @@
 /**
- * OfficeCalm AI — 레벨 기반 콘텐츠 잠금 제어
+ * Mindly — 레벨 기반 콘텐츠 잠금 제어
  */
 (function (OC) {
   function initLevelGate(getUserState) {

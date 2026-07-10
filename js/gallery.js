@@ -1,5 +1,5 @@
 /**
- * OfficeCalm AI — 콘텐츠 라이브러리 힐링 이미지 갤러리
+ * Mindly — 콘텐츠 라이브러리 힐링 이미지 갤러리
  */
 (function (OC) {
   const GALLERY_IMAGES = [

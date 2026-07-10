@@ -1,5 +1,5 @@
 /**
- * OfficeCalm AI — Web Notification API 기반 로컬 알림
+ * Mindly — Web Notification API 기반 로컬 알림
  */
 (function (OC) {
   const SETTINGS_KEY = 'officeCalm_notifications';
@@ -60,7 +60,7 @@
       if (now.getHours() !== REMINDER_HOUR) return;
 
       showNotification(
-        'OfficeCalm AI',
+        'Mindly',
         '오늘의 명상을 아직 완료하지 않았어요. 5분만 쉬어가 볼까요?'
       );
 
@@ -123,7 +123,7 @@
       settings.enabled = true;
       saveSettings(settings);
       updateNotifyButton(btn);
-      showNotification('OfficeCalm AI', '명상 리마인더 알림이 켜졌습니다.');
+      showNotification('Mindly', '명상 리마인더 알림이 켜졌습니다.');
     });
 
     scheduleDailyReminder(getUserState);

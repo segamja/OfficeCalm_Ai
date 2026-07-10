@@ -1,5 +1,5 @@
 /**
- * OfficeCalm AI — 가상 AI 스크립트 프리셋 및 타이핑 효과
+ * Mindly — 가상 AI 스크립트 프리셋 및 타이핑 효과
  */
 (function (OC) {
   const PRESET_SCRIPTS = {

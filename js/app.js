@@ -1,5 +1,5 @@
 /**
- * OfficeCalm AI — 앱 진입점, LocalStorage 연동 및 초기화
+ * Mindly — 앱 진입점, LocalStorage 연동 및 초기화
  */
 (function () {
   const OC = window.OfficeCalm;
@@ -164,10 +164,20 @@
 
   function scrollInPanel(panel, target, offset = 12) {
     if (!panel || !target) return;
-    const panelRect = panel.getBoundingClientRect();
-    const targetRect = target.getBoundingClientRect();
-    const top = targetRect.top - panelRect.top + panel.scrollTop - offset;
-    panel.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+
+    requestAnimationFrame(() => {
+      const panelRect = panel.getBoundingClientRect();
+      const targetRect = target.getBoundingClientRect();
+      const top = targetRect.top - panelRect.top + panel.scrollTop - offset;
+      panel.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+
+  function scrollToAiOutput() {
+    const panel = document.getElementById('tabPanelAi');
+    const target = document.getElementById('aiOutput');
+    scrollInPanel(panel, target);
   }
 
   document.addEventListener('DOMContentLoaded', () => {
@@ -204,18 +214,6 @@
       toast.textContent = message;
       toast.classList.add('is-visible');
       setTimeout(() => toast.classList.remove('is-visible'), 2800);
-    }
-
-    function scrollToAiAction() {
-      const panel = document.getElementById('tabPanelAi');
-      const target = document.getElementById('generateBtn');
-      scrollInPanel(panel, target);
-    }
-
-    function scrollToAiOutput() {
-      const panel = document.getElementById('tabPanelAi');
-      const target = document.getElementById('aiOutput');
-      scrollInPanel(panel, target);
     }
 
     function hideBreatheCta() {
@@ -303,7 +301,7 @@
         const key = btn.dataset.preset;
         const preset = OC.getPresetScript(key);
         stressInput.value = preset.label;
-        scrollToAiAction();
+        scrollToAiOutput();
         handleAISession(preset.script, key);
       });
     });

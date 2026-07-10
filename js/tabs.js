@@ -1,5 +1,5 @@
 /**
- * OfficeCalm AI — 5탭 전환 (모든 화면 공통)
+ * Mindly — 5탭 전환 (모든 화면 공통)
  */
 (function (OC) {
   const STORAGE_KEY = 'officeCalm_active_tab';

@@ -1,5 +1,5 @@
 /**
- * OfficeCalm AI — XP, 레벨, Mind Energy, 레벨업 축하 UI
+ * Mindly — XP, 레벨, Mind Energy, 레벨업 축하 UI
  */
 (function (OC) {
   const LEVEL_TITLES = [

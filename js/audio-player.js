@@ -1,5 +1,5 @@
 /**
- * OfficeCalm AI — HTML5 Audio 기반 로컬 MP3 재생
+ * Mindly — HTML5 Audio 기반 로컬 MP3 재생
  */
 (function (OC) {
   const TRACKS = {

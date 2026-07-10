@@ -1,5 +1,5 @@
 /**
- * OfficeCalm AI — 감사일기 작성 및 히스토리
+ * Mindly — 감사일기 작성 및 히스토리
  */
 (function (OC) {
   function renderHistory(entries) {
