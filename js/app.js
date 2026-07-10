@@ -224,6 +224,7 @@
 
     OC.initNotifications(() => userState);
     OC.initGallery();
+    OC.initTabs();
     initBreatheGuide();
   });
 })();
