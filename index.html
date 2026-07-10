@@ -28,10 +28,19 @@
   <title>Mindly — Your AI Mental Coach</title>
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+  <script>
+    window.__mindlyDeferredPrompt = null;
+    window.addEventListener('beforeinstallprompt', function (e) {
+      e.preventDefault();
+      window.__mindlyDeferredPrompt = e;
+      window.dispatchEvent(new CustomEvent('mindly-installable'));
+    });
+  </script>
+  <script src="js/pwa.js?v=2.0" defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=1.9">
+  <link rel="stylesheet" href="css/style.css?v=2.0">
 </head>
 <body>
   <div class="app">
@@ -384,7 +393,7 @@
           </button>
         </li>
         <li>
-          <button class="settings-list__item" type="button" data-settings-nav="install-app">
+          <button class="settings-list__item" type="button" data-settings-nav="install-app" data-pwa-install>
             <span class="settings-list__icon">📲</span>
             <span class="settings-list__text">
               <span class="settings-list__title">홈 화면에 설치</span>
@@ -534,7 +543,11 @@
     <div class="modal__content modal__content--left fade-in">
       <button class="modal__close" id="pwaInstallGuideCloseBtn" type="button" aria-label="닫기">&times;</button>
       <h2 class="modal__title">홈 화면에 설치하기</h2>
-      <p class="modal__message">버튼만으로 자동 설치되지 않는 경우, 아래 방법으로 직접 추가해 주세요. 설치 후 홈 화면에서 <strong>Mindly</strong>로 검색하면 됩니다.</p>
+      <p class="modal__message">Chrome에서는 아래 <strong>홈 화면에 설치</strong> 버튼으로 브라우저 설치 창이 열립니다. iPhone은 Safari에서 수동으로 추가해 주세요.</p>
+      <div class="install-guide" id="pwaInstallGuideWaiting" hidden>
+        <p class="install-guide__heading">설치 준비 중</p>
+        <p>브라우저가 설치 가능 상태를 확인하는 중입니다. 잠시 후 다시 <strong>홈 화면에 설치</strong> 버튼을 눌러 주세요. (Chrome · HTTPS · 첫 방문 후 1~2회 새로고침 필요할 수 있음)</p>
+      </div>
       <div class="install-guide" id="pwaInstallGuideIos" hidden>
         <p class="install-guide__heading">iPhone (Safari)</p>
         <ol class="install-guide__steps">
@@ -545,13 +558,8 @@
         </ol>
       </div>
       <div class="install-guide" id="pwaInstallGuideAndroid" hidden>
-        <p class="install-guide__heading">Android (Chrome)</p>
-        <ol class="install-guide__steps">
-          <li>Chrome에서 이 페이지를 엽니다</li>
-          <li>우측 상단 <strong>⋮</strong> 메뉴를 누릅니다</li>
-          <li><strong>홈 화면에 추가</strong> 또는 <strong>앱 설치</strong>를 선택합니다</li>
-          <li>이름 <strong>Mindly</strong> 확인 후 설치합니다</li>
-        </ol>
+        <p class="install-guide__heading">Android (Chrome) — 자동 설치</p>
+        <p>상단 배너 또는 설정의 <strong>홈 화면에 설치</strong> 버튼을 누르면 Chrome 설치 프롬프트가 표시됩니다.</p>
       </div>
       <div class="install-guide install-guide--warn" id="pwaInstallGuideInApp" hidden>
         <p class="install-guide__heading">앱 내 브라우저 감지</p>
@@ -617,17 +625,16 @@
     </div>
   </div>
 
-  <script src="js/ai-engine.js?v=1.9"></script>
-  <script src="js/level-gate.js?v=1.9"></script>
-  <script src="js/audio-player.js?v=1.9"></script>
-  <script src="js/gallery.js?v=1.9"></script>
-  <script src="js/onboarding.js?v=1.9"></script>
-  <script src="js/missions.js?v=1.9"></script>
-  <script src="js/progress.js?v=1.9"></script>
-  <script src="js/journal.js?v=1.9"></script>
-  <script src="js/tabs.js?v=1.9"></script>
-  <script src="js/pwa.js?v=1.9"></script>
-  <script src="js/settings.js?v=1.9"></script>
-  <script src="js/app.js?v=1.9"></script>
+  <script src="js/ai-engine.js?v=2.0"></script>
+  <script src="js/level-gate.js?v=2.0"></script>
+  <script src="js/audio-player.js?v=2.0"></script>
+  <script src="js/gallery.js?v=2.0"></script>
+  <script src="js/onboarding.js?v=2.0"></script>
+  <script src="js/missions.js?v=2.0"></script>
+  <script src="js/progress.js?v=2.0"></script>
+  <script src="js/journal.js?v=2.0"></script>
+  <script src="js/tabs.js?v=2.0"></script>
+  <script src="js/settings.js?v=2.0"></script>
+  <script src="js/app.js?v=2.0"></script>
 </body>
 </html>

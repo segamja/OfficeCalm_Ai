@@ -3,14 +3,14 @@
  * 향후 Firebase 로그인·Push Notification 연동 확장 지점
  */
 (function (OC) {
-  const APP_VERSION = '1.9';
+  const APP_VERSION = '2.0';
 
   const COMING_SOON_ITEMS = ['notifications', 'daily-goal', 'theme', 'language'];
 
   const ABOUT_LINKS = {
     github: 'https://github.com/segamja/OfficeCalm_Ai',
     portfolio: 'https://github.com/segamja',
-    email: 'mailto:hello@mindly.app',
+    email: 'mailto:segamja@gmail.com',
   };
 
   function showToast(message) {

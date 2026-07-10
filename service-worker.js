@@ -1,11 +1,10 @@
 /**
  * Mindly — Service Worker (오프라인 캐싱)
- * 향후 Push Notification 등 확장 시 이 파일에서 핸들러 추가
  */
-const CACHE_VERSION = 'mindly-v1.9';
+const CACHE_VERSION = 'mindly-v2.0';
 const CACHE_NAME = 'mindly-static-' + CACHE_VERSION;
 
-const PRECACHE_URLS = [
+const PRECACHE_CRITICAL = [
   './',
   './index.html',
   './manifest.json',
@@ -25,6 +24,9 @@ const PRECACHE_URLS = [
   './assets/images/care.png',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
+];
+
+const PRECACHE_OPTIONAL = [
   './assets/images/calm-01.jpg',
   './assets/images/calm-02.jpg',
   './assets/images/calm-03.jpg',
@@ -37,11 +39,26 @@ const PRECACHE_URLS = [
   './assets/audio/burnout-recovery.mp3',
 ];
 
+async function precacheAll(cache, urls) {
+  await Promise.all(
+    urls.map(async (url) => {
+      try {
+        await cache.add(url);
+      } catch (err) {
+        console.warn('[Mindly SW] 캐시 실패:', url, err);
+      }
+    })
+  );
+}
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches
       .open(CACHE_NAME)
-      .then((cache) => cache.addAll(PRECACHE_URLS))
+      .then(async (cache) => {
+        await precacheAll(cache, PRECACHE_CRITICAL);
+        await precacheAll(cache, PRECACHE_OPTIONAL);
+      })
       .then(() => self.skipWaiting())
   );
 });
@@ -51,7 +68,9 @@ self.addEventListener('activate', (event) => {
     caches
       .keys()
       .then((keys) =>
-        Promise.all(keys.filter((key) => key.startsWith('mindly-static-') && key !== CACHE_NAME).map((key) => caches.delete(key)))
+        Promise.all(
+          keys.filter((key) => key.startsWith('mindly-static-') && key !== CACHE_NAME).map((key) => caches.delete(key))
+        )
       )
       .then(() => self.clients.claim())
   );
@@ -59,7 +78,6 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
   const { request } = event;
-
   if (request.method !== 'GET') return;
 
   const url = new URL(request.url);
@@ -82,7 +100,6 @@ self.addEventListener('fetch', (event) => {
             url.pathname.endsWith('.jpg') ||
             url.pathname.endsWith('.mp3') ||
             url.pathname.endsWith('.json') ||
-            url.pathname.endsWith('.html') ||
             url.pathname.endsWith('/');
 
           if (isStatic) {
@@ -97,12 +114,7 @@ self.addEventListener('fetch', (event) => {
             return caches.match('./index.html');
           }
           return caches.match(request);
-        })
+        });
     })
   );
 });
-
-/* Push Notification — 향후 Firebase 연동 시 활성화
-self.addEventListener('push', (event) => { ... });
-self.addEventListener('notificationclick', (event) => { ... });
-*/

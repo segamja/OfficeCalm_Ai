@@ -1810,6 +1810,11 @@ body.modal-open .tab-nav {
   flex: 1;
 }
 
+[data-pwa-install]:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .btn--sm {
   padding: 0.55rem 0.85rem;
   font-size: 0.82rem;

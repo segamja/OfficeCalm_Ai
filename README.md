@@ -6,7 +6,7 @@
 
 **라이브 데모:** [https://segamja.github.io/OfficeCalm_Ai/](https://segamja.github.io/OfficeCalm_Ai/)
 
-**MVP 버전:** v1.9 (2026-07-11)
+**MVP 버전:** v2.0 (2026-07-11)
 
 ---
 
