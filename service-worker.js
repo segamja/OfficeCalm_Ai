@@ -2,7 +2,7 @@
  * Mindly — Service Worker (오프라인 캐싱)
  * 향후 Push Notification 등 확장 시 이 파일에서 핸들러 추가
  */
-const CACHE_VERSION = 'mindly-v1.8';
+const CACHE_VERSION = 'mindly-v1.9';
 const CACHE_NAME = 'mindly-static-' + CACHE_VERSION;
 
 const PRECACHE_URLS = [
@@ -20,6 +20,7 @@ const PRECACHE_URLS = [
   './js/journal.js',
   './js/tabs.js',
   './js/pwa.js',
+  './js/settings.js',
   './js/app.js',
   './assets/images/care.png',
   './assets/icons/icon-192.png',

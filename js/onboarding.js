@@ -1,5 +1,5 @@
 /**
- * Mindly — 닉네임 온보딩 및 설정 (localStorage.nickname)
+ * Mindly — 닉네임 온보딩 (localStorage.nickname)
  * 향후 Firebase displayName으로 교체 가능하도록 모듈화
  */
 (function (OC) {
@@ -76,10 +76,7 @@
     const { onComplete, setActiveTab } = options;
     const onboardingModal = document.getElementById('onboardingModal');
     const nicknameInput = document.getElementById('onboardingNickname');
-    const settingsNicknameInput = document.getElementById('settingsNickname');
     const startBtn = document.getElementById('onboardingStartBtn');
-    const saveSettingsBtn = document.getElementById('settingsSaveBtn');
-    const settingsBtn = document.getElementById('settingsBtn');
     const mindlyCharacter = document.getElementById('mindlyCharacter');
 
     function finishOnboarding() {
@@ -115,23 +112,6 @@
       if (e.key === 'Enter') startBtn?.click();
     });
 
-    settingsBtn?.addEventListener('click', () => {
-      if (settingsNicknameInput) settingsNicknameInput.value = getNickname();
-      showModal('settingsModal');
-    });
-
-    saveSettingsBtn?.addEventListener('click', () => {
-      if (!setNickname(settingsNicknameInput?.value)) {
-        settingsNicknameInput?.focus();
-        return;
-      }
-      updateGreetingUI();
-      hideModal('settingsModal');
-    });
-
-    document.getElementById('settingsCloseBtn')?.addEventListener('click', () => hideModal('settingsModal'));
-    document.getElementById('settingsBackdrop')?.addEventListener('click', () => hideModal('settingsModal'));
-
     mindlyCharacter?.addEventListener('click', () => showModal('mindlyCharacterModal'));
     document.getElementById('mindlyCharacterCloseBtn')?.addEventListener('click', () =>
       hideModal('mindlyCharacterModal')
@@ -151,4 +131,5 @@
   OC.setNickname = setNickname;
   OC.getTimeGreeting = getTimeGreeting;
   OC.initOnboarding = initOnboarding;
+  OC.updateGreetingUI = updateGreetingUI;
 })(window.OfficeCalm = window.OfficeCalm || {});

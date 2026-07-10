@@ -250,6 +250,11 @@
       setActiveTab: tabsApi?.setActiveTab,
     });
 
+    OC.initSettings({
+      updateGreetingUI: OC.updateGreetingUI,
+      onInstallApp: () => OC.promptInstall?.(),
+    });
+
     function hideLibraryHint() {
       if (libraryHintEl) {
         libraryHintEl.hidden = true;

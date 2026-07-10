@@ -31,7 +31,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=1.8">
+  <link rel="stylesheet" href="css/style.css?v=1.9">
 </head>
 <body>
   <div class="app">
@@ -365,6 +365,150 @@
     </nav>
   </div>
 
+  <div class="settings-screen" id="settingsScreen" hidden aria-label="설정">
+    <header class="settings-screen__header">
+      <button class="settings-screen__back" id="settingsBackBtn" type="button" aria-label="닫기">←</button>
+      <h2 class="settings-screen__title" id="settingsScreenTitle">설정</h2>
+    </header>
+
+    <div class="settings-screen__body" id="settingsMainView">
+      <ul class="settings-list">
+        <li>
+          <button class="settings-list__item" type="button" data-settings-nav="profile">
+            <span class="settings-list__icon">👤</span>
+            <span class="settings-list__text">
+              <span class="settings-list__title">Profile</span>
+              <span class="settings-list__desc">닉네임 관리</span>
+            </span>
+            <span class="settings-list__arrow" aria-hidden="true">›</span>
+          </button>
+        </li>
+        <li>
+          <button class="settings-list__item" type="button" data-settings-nav="install-app">
+            <span class="settings-list__icon">📲</span>
+            <span class="settings-list__text">
+              <span class="settings-list__title">홈 화면에 설치</span>
+              <span class="settings-list__desc">앱처럼 사용하기</span>
+            </span>
+            <span class="settings-list__arrow" aria-hidden="true">›</span>
+          </button>
+        </li>
+        <li class="settings-list__divider" role="separator"></li>
+        <li>
+          <button class="settings-list__item" type="button" data-settings-nav="notifications">
+            <span class="settings-list__icon">🔔</span>
+            <span class="settings-list__text">
+              <span class="settings-list__title">Notifications</span>
+              <span class="settings-list__badge">Coming Soon</span>
+            </span>
+            <span class="settings-list__arrow" aria-hidden="true">›</span>
+          </button>
+        </li>
+        <li>
+          <button class="settings-list__item" type="button" data-settings-nav="daily-goal">
+            <span class="settings-list__icon">🎯</span>
+            <span class="settings-list__text">
+              <span class="settings-list__title">Daily Goal</span>
+              <span class="settings-list__badge">Coming Soon</span>
+            </span>
+            <span class="settings-list__arrow" aria-hidden="true">›</span>
+          </button>
+        </li>
+        <li>
+          <button class="settings-list__item" type="button" data-settings-nav="theme">
+            <span class="settings-list__icon">🎨</span>
+            <span class="settings-list__text">
+              <span class="settings-list__title">Theme</span>
+              <span class="settings-list__badge">Coming Soon</span>
+            </span>
+            <span class="settings-list__arrow" aria-hidden="true">›</span>
+          </button>
+        </li>
+        <li>
+          <button class="settings-list__item" type="button" data-settings-nav="language">
+            <span class="settings-list__icon">🌐</span>
+            <span class="settings-list__text">
+              <span class="settings-list__title">Language</span>
+              <span class="settings-list__badge">Coming Soon</span>
+            </span>
+            <span class="settings-list__arrow" aria-hidden="true">›</span>
+          </button>
+        </li>
+        <li class="settings-list__divider" role="separator"></li>
+        <li>
+          <button class="settings-list__item" type="button" data-settings-nav="about">
+            <span class="settings-list__icon">❤️</span>
+            <span class="settings-list__text">
+              <span class="settings-list__title">About Mindly</span>
+              <span class="settings-list__desc">앱 정보</span>
+            </span>
+            <span class="settings-list__arrow" aria-hidden="true">›</span>
+          </button>
+        </li>
+        <li>
+          <button class="settings-list__item" type="button" data-settings-nav="privacy">
+            <span class="settings-list__icon">📄</span>
+            <span class="settings-list__text">
+              <span class="settings-list__title">Privacy Policy</span>
+            </span>
+            <span class="settings-list__arrow" aria-hidden="true">›</span>
+          </button>
+        </li>
+        <li>
+          <button class="settings-list__item" type="button" data-settings-nav="terms">
+            <span class="settings-list__icon">📃</span>
+            <span class="settings-list__text">
+              <span class="settings-list__title">Terms of Service</span>
+            </span>
+            <span class="settings-list__arrow" aria-hidden="true">›</span>
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <div class="settings-screen__body settings-screen__body--sub" id="settingsSubView" hidden>
+      <div class="settings-panel" data-settings-panel="profile">
+        <p class="settings-panel__desc">앱 전체에서 사용할 닉네임을 설정합니다.</p>
+        <label class="input-label" for="settingsProfileNickname">닉네임</label>
+        <input class="onboarding-modal__input" id="settingsProfileNickname" type="text" maxlength="20" autocomplete="nickname">
+        <button class="btn btn--primary" id="settingsProfileSaveBtn" type="button">저장</button>
+      </div>
+
+      <div class="settings-panel settings-panel--about" data-settings-panel="about" hidden>
+        <div class="about-card">
+          <img src="assets/images/care.png" alt="" class="about-card__logo" width="72" height="72">
+          <h3 class="about-card__name">Mindly</h3>
+          <p class="about-card__version" id="settingsAboutVersion">Version 1.9</p>
+          <p class="about-card__tagline">Your AI Mental Coach</p>
+        </div>
+        <div class="about-section">
+          <p class="about-section__label">Designed &amp; Developed by</p>
+          <p class="about-section__name">Hongmin Park</p>
+          <p class="about-section__role">Software Engineer · AI Builder</p>
+        </div>
+        <div class="about-section">
+          <p class="about-section__text">Mindly는 직장인의 스트레스와 번아웃 예방을 위해 개발된 AI Recovery Coach입니다.</p>
+        </div>
+        <div class="about-links">
+          <button class="btn btn--ghost about-links__btn" id="settingsAboutGithub" type="button">GitHub</button>
+          <button class="btn btn--ghost about-links__btn" id="settingsAboutPortfolio" type="button">Portfolio</button>
+          <button class="btn btn--ghost about-links__btn" id="settingsAboutEmail" type="button">Email</button>
+        </div>
+        <p class="about-footer">Made with ❤️ in Korea<br>© 2026 Mindly</p>
+      </div>
+
+      <div class="settings-panel" data-settings-panel="privacy" hidden>
+        <h3 class="settings-panel__title">Privacy Policy</h3>
+        <p class="settings-panel__placeholder">개인정보 처리방침은 준비 중입니다.<br>현재 Mindly는 모든 데이터를 기기 내부(localStorage)에만 저장하며, 서버로 전송하지 않습니다.</p>
+      </div>
+
+      <div class="settings-panel" data-settings-panel="terms" hidden>
+        <h3 class="settings-panel__title">Terms of Service</h3>
+        <p class="settings-panel__placeholder">이용약관은 준비 중입니다.<br>Mindly는 멘탈 웰니스 보조 도구이며, 의료·상담 서비스를 대체하지 않습니다.</p>
+      </div>
+    </div>
+  </div>
+
   <div class="mini-player" id="miniPlayer" hidden aria-label="음악 미니 플레이어">
     <img class="mini-player__art" id="miniPlayerArt" src="assets/images/care.png" alt="" width="44" height="44">
     <div class="mini-player__meta">
@@ -385,6 +529,38 @@
     </div>
   </div>
 
+  <div class="modal pwa-install-guide-modal" id="pwaInstallGuideModal" role="dialog" aria-modal="true" hidden>
+    <div class="modal__backdrop" id="pwaInstallGuideBackdrop"></div>
+    <div class="modal__content modal__content--left fade-in">
+      <button class="modal__close" id="pwaInstallGuideCloseBtn" type="button" aria-label="닫기">&times;</button>
+      <h2 class="modal__title">홈 화면에 설치하기</h2>
+      <p class="modal__message">버튼만으로 자동 설치되지 않는 경우, 아래 방법으로 직접 추가해 주세요. 설치 후 홈 화면에서 <strong>Mindly</strong>로 검색하면 됩니다.</p>
+      <div class="install-guide" id="pwaInstallGuideIos" hidden>
+        <p class="install-guide__heading">iPhone (Safari)</p>
+        <ol class="install-guide__steps">
+          <li>Safari에서 이 페이지를 엽니다 (카카오톡 등 앱 내 브라우저는 안 됩니다)</li>
+          <li>하단 <strong>공유</strong> 버튼(□↑)을 누릅니다</li>
+          <li><strong>홈 화면에 추가</strong>를 선택합니다</li>
+          <li>이름 <strong>Mindly</strong> 확인 후 <strong>추가</strong>를 누릅니다</li>
+        </ol>
+      </div>
+      <div class="install-guide" id="pwaInstallGuideAndroid" hidden>
+        <p class="install-guide__heading">Android (Chrome)</p>
+        <ol class="install-guide__steps">
+          <li>Chrome에서 이 페이지를 엽니다</li>
+          <li>우측 상단 <strong>⋮</strong> 메뉴를 누릅니다</li>
+          <li><strong>홈 화면에 추가</strong> 또는 <strong>앱 설치</strong>를 선택합니다</li>
+          <li>이름 <strong>Mindly</strong> 확인 후 설치합니다</li>
+        </ol>
+      </div>
+      <div class="install-guide install-guide--warn" id="pwaInstallGuideInApp" hidden>
+        <p class="install-guide__heading">앱 내 브라우저 감지</p>
+        <p>카카오톡·인스타그램 등 앱 안에서는 설치가 되지 않습니다. <strong>Chrome</strong> 또는 <strong>Safari</strong>에서 아래 주소를 직접 열어 주세요.</p>
+        <p class="install-guide__url">segamja.github.io/OfficeCalm_Ai</p>
+      </div>
+    </div>
+  </div>
+
   <div class="xp-toast" id="xpToast" aria-live="polite"></div>
 
   <div class="modal onboarding-modal" id="onboardingModal" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle" hidden>
@@ -396,17 +572,6 @@
       <p class="onboarding-modal__question">당신을 어떻게 불러드리면 될까요?</p>
       <input class="onboarding-modal__input" id="onboardingNickname" type="text" maxlength="20" placeholder="닉네임 입력" autocomplete="nickname">
       <button class="btn btn--primary" id="onboardingStartBtn" type="button">시작하기</button>
-    </div>
-  </div>
-
-  <div class="modal settings-modal" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" hidden>
-    <div class="modal__backdrop" id="settingsBackdrop"></div>
-    <div class="modal__content fade-in">
-      <button class="modal__close" id="settingsCloseBtn" type="button" aria-label="닫기">&times;</button>
-      <h2 class="modal__title" id="settingsTitle">설정</h2>
-      <label class="input-label" for="settingsNickname">닉네임</label>
-      <input class="onboarding-modal__input" id="settingsNickname" type="text" maxlength="20" autocomplete="nickname">
-      <button class="btn btn--primary" id="settingsSaveBtn" type="button">저장</button>
     </div>
   </div>
 
@@ -452,16 +617,17 @@
     </div>
   </div>
 
-  <script src="js/ai-engine.js?v=1.8"></script>
-  <script src="js/level-gate.js?v=1.8"></script>
-  <script src="js/audio-player.js?v=1.8"></script>
-  <script src="js/gallery.js?v=1.8"></script>
-  <script src="js/onboarding.js?v=1.8"></script>
-  <script src="js/missions.js?v=1.8"></script>
-  <script src="js/progress.js?v=1.8"></script>
-  <script src="js/journal.js?v=1.8"></script>
-  <script src="js/tabs.js?v=1.8"></script>
-  <script src="js/pwa.js?v=1.8"></script>
-  <script src="js/app.js?v=1.8"></script>
+  <script src="js/ai-engine.js?v=1.9"></script>
+  <script src="js/level-gate.js?v=1.9"></script>
+  <script src="js/audio-player.js?v=1.9"></script>
+  <script src="js/gallery.js?v=1.9"></script>
+  <script src="js/onboarding.js?v=1.9"></script>
+  <script src="js/missions.js?v=1.9"></script>
+  <script src="js/progress.js?v=1.9"></script>
+  <script src="js/journal.js?v=1.9"></script>
+  <script src="js/tabs.js?v=1.9"></script>
+  <script src="js/pwa.js?v=1.9"></script>
+  <script src="js/settings.js?v=1.9"></script>
+  <script src="js/app.js?v=1.9"></script>
 </body>
 </html>
