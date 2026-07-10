@@ -56,6 +56,7 @@
     const modal = document.getElementById(modalId);
     if (!modal) return;
     modal.hidden = false;
+    document.body.classList.add('modal-open');
     document.body.style.overflow = 'hidden';
   }
 
@@ -63,29 +64,40 @@
     const modal = document.getElementById(modalId);
     if (!modal) return;
     modal.hidden = true;
-    document.body.style.overflow = '';
+
+    const anyOpen = document.querySelector('.modal:not([hidden])');
+    if (!anyOpen) {
+      document.body.classList.remove('modal-open');
+      document.body.style.overflow = '';
+    }
   }
 
-  function initOnboarding(onComplete) {
+  function initOnboarding(options = {}) {
+    const { onComplete, setActiveTab } = options;
     const onboardingModal = document.getElementById('onboardingModal');
-    const settingsModal = document.getElementById('settingsModal');
     const nicknameInput = document.getElementById('onboardingNickname');
     const settingsNicknameInput = document.getElementById('settingsNickname');
     const startBtn = document.getElementById('onboardingStartBtn');
     const saveSettingsBtn = document.getElementById('settingsSaveBtn');
     const settingsBtn = document.getElementById('settingsBtn');
     const mindlyCharacter = document.getElementById('mindlyCharacter');
-    const characterModal = document.getElementById('mindlyCharacterModal');
 
     function finishOnboarding() {
+      document.body.classList.remove('is-onboarding');
       hideModal('onboardingModal');
       updateGreetingUI();
       onComplete?.();
     }
 
-    if (!getNickname()) {
+    function openOnboarding() {
+      setActiveTab?.('home', false);
+      document.body.classList.add('is-onboarding');
       showModal('onboardingModal');
       nicknameInput?.focus();
+    }
+
+    if (!getNickname()) {
+      openOnboarding();
     } else {
       updateGreetingUI();
     }
@@ -128,7 +140,7 @@
       hideModal('mindlyCharacterModal')
     );
 
-    onboardingModal?.querySelector('.onboarding-modal__backdrop')?.addEventListener('click', (e) => {
+    document.getElementById('onboardingBackdrop')?.addEventListener('click', (e) => {
       e.stopPropagation();
     });
 

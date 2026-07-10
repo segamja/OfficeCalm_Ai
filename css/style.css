@@ -1638,6 +1638,21 @@ body {
 }
 
 /* ---- UX v1: Onboarding & Settings ---- */
+.onboarding-modal {
+  z-index: 1200;
+}
+
+body.is-onboarding .app,
+body.is-onboarding .tab-nav,
+body.is-onboarding .mini-player {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+body.modal-open .tab-nav {
+  pointer-events: none;
+}
+
 .onboarding-modal__content {
   text-align: center;
   max-width: 360px;
@@ -1754,6 +1769,59 @@ body {
 
 .panel.is-active {
   animation: fade-in 0.25s ease;
+}
+
+/* ---- PWA Install Banner ---- */
+.pwa-install-banner {
+  position: fixed;
+  left: 50%;
+  bottom: 72px;
+  transform: translateX(-50%);
+  width: calc(100% - 1.5rem);
+  max-width: 608px;
+  padding: 0.85rem 1rem;
+  background: rgba(30, 41, 59, 0.98);
+  border: 1px solid var(--border-accent);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+  z-index: 1050;
+  animation: slide-up 0.3s ease;
+}
+
+.pwa-install-banner[hidden] {
+  display: none !important;
+}
+
+.pwa-install-banner__text {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.65rem;
+  line-height: 1.5;
+}
+
+.pwa-install-banner__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.pwa-install-banner__actions .btn {
+  flex: 1;
+}
+
+.btn--sm {
+  padding: 0.55rem 0.85rem;
+  font-size: 0.82rem;
+}
+
+.btn--ghost {
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-secondary);
+}
+
+.btn--ghost:hover {
+  border-color: var(--border-accent);
+  color: var(--text-primary);
 }
 
 /* ---- Responsive tweaks ---- */

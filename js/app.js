@@ -242,9 +242,12 @@
 
     const tabsApi = OC.initTabs();
 
-    OC.initOnboarding(() => {
-      progress.refresh();
-      missions.updateMissionUI();
+    OC.initOnboarding({
+      onComplete: () => {
+        progress.refresh();
+        missions.updateMissionUI();
+      },
+      setActiveTab: tabsApi?.setActiveTab,
     });
 
     function hideLibraryHint() {
@@ -417,6 +420,7 @@
     });
 
     OC.initGallery();
+    OC.initPWA();
     initBreatheGuide();
     updateBreatheRecommendation(localStorage.getItem(LAST_PRESET_KEY));
     progress.refresh();

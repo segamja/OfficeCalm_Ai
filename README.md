@@ -6,7 +6,7 @@
 
 **라이브 데모:** [https://segamja.github.io/OfficeCalm_Ai/](https://segamja.github.io/OfficeCalm_Ai/)
 
-**MVP 버전:** v1.7 (2026-07-11)
+**MVP 버전:** v1.8 (2026-07-11)
 
 ---
 
@@ -32,6 +32,7 @@
 | XP · 레벨 · Mind Energy | ✅ | 8단계 레벨, 레벨업 축하 모달 |
 | 알림 리마인더 | — | 홈 UI에서 제거 (notifications.js는 레거시) |
 | GitHub Pages 배포 | ✅ | `main` push 시 자동 배포 |
+| PWA (설치·오프라인) | ✅ | manifest, Service Worker, 홈 화면 설치 안내 |
 | 실제 AI API | ⏳ | 프리셋 기반 가상 AI (향후 연동) |
 | 백엔드·계정 동기화 | ⏳ | localStorage only |
 

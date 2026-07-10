@@ -21,11 +21,17 @@
     })();
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#38bdf8">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Mindly">
   <title>Mindly — Your AI Mental Coach</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=1.7">
+  <link rel="stylesheet" href="css/style.css?v=1.8">
 </head>
 <body>
   <div class="app">
@@ -371,11 +377,19 @@
     </div>
   </div>
 
+  <div class="pwa-install-banner" id="pwaInstallBanner" hidden>
+    <p class="pwa-install-banner__text">Mindly를 홈 화면에 설치하고 앱처럼 사용해 보세요.</p>
+    <div class="pwa-install-banner__actions">
+      <button class="btn btn--primary btn--sm" id="pwaInstallBtn" type="button">홈 화면에 설치</button>
+      <button class="btn btn--ghost btn--sm" id="pwaInstallDismissBtn" type="button">나중에</button>
+    </div>
+  </div>
+
   <div class="xp-toast" id="xpToast" aria-live="polite"></div>
 
   <div class="modal onboarding-modal" id="onboardingModal" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle" hidden>
-    <div class="onboarding-modal__backdrop"></div>
-    <div class="onboarding-modal__content fade-in">
+    <div class="modal__backdrop" id="onboardingBackdrop"></div>
+    <div class="modal__content onboarding-modal__content fade-in">
       <p class="onboarding-modal__emoji" aria-hidden="true">😊</p>
       <h2 class="onboarding-modal__title" id="onboardingTitle">안녕하세요</h2>
       <p class="onboarding-modal__desc">저는 <strong>Mindly</strong>입니다.<br>앞으로 함께 마음을 돌보는 여정을 시작해 볼까요?</p>
@@ -438,15 +452,16 @@
     </div>
   </div>
 
-  <script src="js/ai-engine.js?v=1.7"></script>
-  <script src="js/level-gate.js?v=1.7"></script>
-  <script src="js/audio-player.js?v=1.7"></script>
-  <script src="js/gallery.js?v=1.7"></script>
-  <script src="js/onboarding.js?v=1.7"></script>
-  <script src="js/missions.js?v=1.7"></script>
-  <script src="js/progress.js?v=1.7"></script>
-  <script src="js/journal.js?v=1.7"></script>
-  <script src="js/tabs.js?v=1.7"></script>
-  <script src="js/app.js?v=1.7"></script>
+  <script src="js/ai-engine.js?v=1.8"></script>
+  <script src="js/level-gate.js?v=1.8"></script>
+  <script src="js/audio-player.js?v=1.8"></script>
+  <script src="js/gallery.js?v=1.8"></script>
+  <script src="js/onboarding.js?v=1.8"></script>
+  <script src="js/missions.js?v=1.8"></script>
+  <script src="js/progress.js?v=1.8"></script>
+  <script src="js/journal.js?v=1.8"></script>
+  <script src="js/tabs.js?v=1.8"></script>
+  <script src="js/pwa.js?v=1.8"></script>
+  <script src="js/app.js?v=1.8"></script>
 </body>
 </html>

@@ -14,6 +14,11 @@
     if (!tabButtons.length || !panels.length) return null;
 
     function getSavedTab() {
+      try {
+        if (!localStorage.getItem('nickname')) return DEFAULT_TAB;
+      } catch {
+        return DEFAULT_TAB;
+      }
       const saved = sessionStorage.getItem(STORAGE_KEY);
       return VALID_TABS.includes(saved) ? saved : DEFAULT_TAB;
     }
