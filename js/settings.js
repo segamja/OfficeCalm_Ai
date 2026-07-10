@@ -3,8 +3,6 @@
  * 향후 Firebase 로그인·Push Notification 연동 확장 지점
  */
 (function (OC) {
-  const APP_VERSION = '2.3';
-
   const COMING_SOON_ITEMS = ['notifications', 'daily-goal', 'theme', 'language'];
 
   const ABOUT_LINKS = {
@@ -13,12 +11,66 @@
     email: 'mailto:segamja@gmail.com',
   };
 
+  function getAppVersion() {
+    return OC.APP_VERSION || window.MindlyVersion?.APP_VERSION || '2.4';
+  }
+
   function showToast(message) {
     const toast = document.getElementById('xpToast');
     if (!toast) return;
     toast.textContent = message;
     toast.classList.add('is-visible');
     setTimeout(() => toast.classList.remove('is-visible'), 2200);
+  }
+
+  function renderAboutVersion() {
+    const info = OC.getVersionInfo?.() || {
+      appVersion: getAppVersion(),
+      latestCacheVersion: OC.SW_CACHE_VERSION || window.MindlyVersion?.SW_CACHE_VERSION || '—',
+      activeCacheVersion: OC.activeSwVersion || null,
+      standalone: OC.isStandalone?.() || false,
+      updatePending: false,
+    };
+
+    const versionEl = document.getElementById('settingsAboutVersion');
+    const appVersionEl = document.getElementById('settingsAboutAppVersion');
+    const activeCacheEl = document.getElementById('settingsAboutActiveCache');
+    const latestCacheEl = document.getElementById('settingsAboutLatestCache');
+    const runModeEl = document.getElementById('settingsAboutRunMode');
+    const updateStatusEl = document.getElementById('settingsAboutUpdateStatus');
+
+    const appVersion = info.appVersion || getAppVersion();
+    const activeCache = info.activeCacheVersion;
+    const latestCache = info.latestCacheVersion || '—';
+    const isUpToDate = activeCache && latestCache && activeCache === latestCache;
+
+    if (versionEl) versionEl.textContent = 'Version ' + appVersion;
+    if (appVersionEl) appVersionEl.textContent = appVersion;
+    if (activeCacheEl) {
+      activeCacheEl.textContent = activeCache || '확인 중…';
+      activeCacheEl.classList.toggle('about-version-detail__value--pending', !activeCache);
+    }
+    if (latestCacheEl) latestCacheEl.textContent = latestCache;
+    if (runModeEl) {
+      runModeEl.textContent = info.standalone ? '설치된 앱 (standalone)' : '브라우저';
+    }
+    if (updateStatusEl) {
+      if (info.updatePending) {
+        updateStatusEl.textContent = '새 버전 대기 중 — 새로고침 또는 앱 재실행';
+        updateStatusEl.classList.add('about-version-detail__value--warn');
+        updateStatusEl.classList.remove('about-version-detail__value--ok');
+      } else if (isUpToDate) {
+        updateStatusEl.textContent = '최신 버전 적용됨';
+        updateStatusEl.classList.add('about-version-detail__value--ok');
+        updateStatusEl.classList.remove('about-version-detail__value--warn');
+      } else if (activeCache) {
+        updateStatusEl.textContent = '캐시 동기화 확인 중';
+        updateStatusEl.classList.remove('about-version-detail__value--ok', 'about-version-detail__value--warn');
+      } else {
+        updateStatusEl.textContent = '확인 중…';
+        updateStatusEl.classList.remove('about-version-detail__value--ok', 'about-version-detail__value--warn');
+      }
+    }
   }
 
   function initSettings(options = {}) {
@@ -31,13 +83,13 @@
     const subView = document.getElementById('settingsSubView');
     const nicknameInput = document.getElementById('settingsProfileNickname');
     const saveProfileBtn = document.getElementById('settingsProfileSaveBtn');
-    const versionEl = document.getElementById('settingsAboutVersion');
 
     if (!screen) return;
 
     let currentView = 'main';
 
-    if (versionEl) versionEl.textContent = 'Version ' + APP_VERSION;
+    renderAboutVersion();
+    document.addEventListener('mindly-sw-version', renderAboutVersion);
 
     function openScreen() {
       screen.hidden = false;
@@ -78,6 +130,12 @@
 
         if (viewId === 'profile' && nicknameInput) {
           nicknameInput.value = OC.getNickname?.() || '';
+        }
+
+        if (viewId === 'about') {
+          OC.requestSwVersion?.();
+          renderAboutVersion();
+          OC.checkForUpdate?.();
         }
       }
     }
@@ -132,7 +190,7 @@
       window.location.href = ABOUT_LINKS.email;
     });
 
-    return { openScreen, closeScreen, APP_VERSION };
+    return { openScreen, closeScreen, getAppVersion, renderAboutVersion };
   }
 
   OC.initSettings = initSettings;

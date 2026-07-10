@@ -36,11 +36,12 @@
       window.dispatchEvent(new CustomEvent('mindly-installable'));
     });
   </script>
-  <script src="js/pwa.js?v=2.3" defer></script>
+  <script src="js/version.js?v=2.4"></script>
+  <script src="js/pwa.js?v=2.4" defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=2.3">
+  <link rel="stylesheet" href="css/style.css?v=2.4">
 </head>
 <body>
   <div class="app">
@@ -145,7 +146,7 @@
 
       <section class="panel panel--ai" data-tab-panel="ai" id="tabPanelAi" aria-labelledby="aiPanelTitle">
         <div class="panel__header">
-          <h2 class="panel__title" id="aiPanelTitle">AI 스트레스 관리실</h2>
+          <h2 class="panel__title" id="aiPanelTitle">Mindly Coach</h2>
           <span class="panel__badge">맞춤 코칭 · 브리드 연동</span>
         </div>
 
@@ -487,7 +488,29 @@
         <div class="about-card">
           <img src="assets/images/care.png" alt="" class="about-card__logo" width="72" height="72">
           <h3 class="about-card__name">Mindly</h3>
-          <p class="about-card__version" id="settingsAboutVersion">Version 1.9</p>
+          <p class="about-card__version" id="settingsAboutVersion">Version 2.4</p>
+          <dl class="about-version-detail" id="settingsAboutVersionDetail" aria-label="버전 및 업데이트 정보">
+            <div class="about-version-detail__row">
+              <dt>앱 버전</dt>
+              <dd id="settingsAboutAppVersion">—</dd>
+            </div>
+            <div class="about-version-detail__row">
+              <dt>적용된 캐시</dt>
+              <dd id="settingsAboutActiveCache">확인 중…</dd>
+            </div>
+            <div class="about-version-detail__row">
+              <dt>최신 캐시</dt>
+              <dd id="settingsAboutLatestCache">—</dd>
+            </div>
+            <div class="about-version-detail__row">
+              <dt>실행 모드</dt>
+              <dd id="settingsAboutRunMode">—</dd>
+            </div>
+            <div class="about-version-detail__row">
+              <dt>업데이트</dt>
+              <dd id="settingsAboutUpdateStatus">—</dd>
+            </div>
+          </dl>
           <p class="about-card__tagline">Your AI Mental Coach</p>
         </div>
         <div class="about-section">
@@ -566,8 +589,14 @@
         </ol>
       </div>
       <div class="install-guide" id="pwaInstallGuideAndroid" hidden>
-        <p class="install-guide__heading">Android (Chrome) — 자동 설치</p>
-        <p>상단 배너 또는 설정의 <strong>홈 화면에 설치</strong> 버튼을 누르면 Chrome 설치 프롬프트가 표시됩니다.</p>
+        <p class="install-guide__heading">Android (Chrome)</p>
+        <p id="pwaInstallGuideAndroidAuto" hidden>상단 배너 또는 설정의 <strong>홈 화면에 설치</strong> 버튼을 누르면 Chrome 설치 창이 바로 열립니다.</p>
+        <p class="install-guide__subheading">수동 설치 방법</p>
+        <ol class="install-guide__steps">
+          <li>Chrome 주소창 우측 <strong>⋮</strong> 메뉴를 누릅니다</li>
+          <li><strong>홈 화면에 추가</strong> 또는 <strong>앱 설치</strong>를 선택합니다</li>
+          <li>이름 <strong>Mindly</strong> 확인 후 <strong>설치</strong> 또는 <strong>추가</strong>를 누릅니다</li>
+        </ol>
       </div>
       <div class="install-guide install-guide--warn" id="pwaInstallGuideInApp" hidden>
         <p class="install-guide__heading">앱 내 브라우저 감지</p>
@@ -642,7 +671,7 @@
   <script src="js/progress.js?v=2.3"></script>
   <script src="js/journal.js?v=2.3"></script>
   <script src="js/tabs.js?v=2.3"></script>
-  <script src="js/settings.js?v=2.3"></script>
-  <script src="js/app.js?v=2.3"></script>
+  <script src="js/settings.js?v=2.4"></script>
+  <script src="js/app.js?v=2.4"></script>
 </body>
 </html>

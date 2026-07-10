@@ -2,7 +2,7 @@
  * Mindly — PWA 설치, Service Worker 등록, 버전 업데이트
  */
 (function (OC) {
-  const DISMISS_KEY = 'mindly_pwa_install_dismissed';
+  const DISMISS_KEY = 'mindly_pwa_install_dismissed_session';
   const UPDATE_CHECK_MS = 5 * 60 * 1000;
   const STANDALONE_UPDATE_CHECK_MS = 60 * 1000;
 
@@ -11,7 +11,24 @@
   let refreshing = false;
   let updateBannerVisible = false;
   let updateCheckTimer = null;
+  let activeSwVersion = null;
   const installReadyCallbacks = [];
+
+  function isDismissedThisSession() {
+    try {
+      return sessionStorage.getItem(DISMISS_KEY) === '1';
+    } catch {
+      return false;
+    }
+  }
+
+  function dismissInstallBanner() {
+    try {
+      sessionStorage.setItem(DISMISS_KEY, '1');
+    } catch {
+      /* ignore */
+    }
+  }
 
   function getBasePath() {
     let path = location.pathname;
@@ -67,10 +84,10 @@
   function updateInstallButtons() {
     const ready = isInstallReady();
     document.querySelectorAll('[data-pwa-install]').forEach((btn) => {
-      btn.disabled = !ready && canUseNativePrompt();
-      btn.setAttribute('aria-disabled', btn.disabled ? 'true' : 'false');
+      btn.disabled = false;
+      btn.setAttribute('aria-disabled', 'false');
       if (btn.id === 'pwaInstallBtn') {
-        btn.textContent = ready ? '홈 화면에 설치' : canUseNativePrompt() ? '설치 준비 중…' : '홈 화면에 설치';
+        btn.textContent = ready ? '홈 화면에 설치' : '홈 화면에 설치';
       }
     });
   }
@@ -171,12 +188,15 @@
     const inAppGuide = document.getElementById('pwaInstallGuideInApp');
     const waitingGuide = document.getElementById('pwaInstallGuideWaiting');
 
+    const androidAuto = document.getElementById('pwaInstallGuideAndroidAuto');
+
     if (!modal) return;
 
     iosGuide.hidden = !isIOS();
     inAppGuide.hidden = !isInAppBrowser();
     waitingGuide.hidden = isIOS() || isInAppBrowser() || isInstallReady();
-    androidGuide.hidden = isIOS() || isInAppBrowser() || !isInstallReady();
+    androidGuide.hidden = isIOS() || isInAppBrowser();
+    if (androidAuto) androidAuto.hidden = !isInstallReady();
 
     modal.hidden = false;
     document.body.classList.add('modal-open');
@@ -195,6 +215,11 @@
     }
   }
 
+  function requestSwVersion() {
+    const worker = navigator.serviceWorker.controller || swRegistration?.active;
+    worker?.postMessage({ type: 'GET_VERSION' });
+  }
+
   async function registerServiceWorker() {
     if (!('serviceWorker' in navigator)) return null;
 
@@ -208,6 +233,7 @@
       });
       console.info('[Mindly PWA] Service Worker 등록:', swRegistration.scope);
       setupUpdateDetection(swRegistration);
+      requestSwVersion();
       return swRegistration;
     } catch (err) {
       console.error('[Mindly PWA] Service Worker 등록 실패:', err);
@@ -270,7 +296,10 @@
 
   navigator.serviceWorker?.addEventListener('message', (event) => {
     if (event.data?.type === 'SW_ACTIVATED') {
+      activeSwVersion = event.data.version;
+      OC.activeSwVersion = activeSwVersion;
       console.info('[Mindly PWA] SW 활성화:', event.data.version);
+      document.dispatchEvent(new CustomEvent('mindly-sw-version', { detail: event.data.version }));
     }
   });
 
@@ -293,8 +322,13 @@
     }
 
     function showBanner() {
-      if (!banner || isStandalone() || localStorage.getItem(DISMISS_KEY)) return;
+      if (!banner || isStandalone() || isDismissedThisSession()) return;
       banner.hidden = false;
+      const textEl = banner.querySelector('.pwa-install-banner__text');
+      if (textEl && !isInstallReady()) {
+        textEl.textContent =
+          'Mindly를 홈 화면에 설치하고 앱처럼 사용해 보세요. (버튼을 누르면 설치 방법을 안내합니다)';
+      }
     }
 
     installBtn?.setAttribute('data-pwa-install', '');
@@ -308,7 +342,7 @@
     });
 
     dismissBtn?.addEventListener('click', () => {
-      localStorage.setItem(DISMISS_KEY, '1');
+      dismissInstallBanner();
       hideBanner();
     });
 
@@ -327,18 +361,37 @@
       console.info('[Mindly PWA] 앱 설치 완료');
     });
 
-    if (isMobile() && !isStandalone() && !localStorage.getItem(DISMISS_KEY)) {
-      setTimeout(showBanner, 3000);
+    if (!isStandalone() && !isDismissedThisSession()) {
+      setTimeout(showBanner, 2000);
+    }
+
+    try {
+      localStorage.removeItem('mindly_pwa_install_dismissed');
+    } catch {
+      /* ignore legacy dismiss key */
     }
   }
 
-  OC.APP_VERSION = '2.3';
+  const versionMeta = window.MindlyVersion || { APP_VERSION: '2.4', SW_CACHE_VERSION: 'mindly-v2.4' };
+  OC.APP_VERSION = versionMeta.APP_VERSION;
+  OC.SW_CACHE_VERSION = versionMeta.SW_CACHE_VERSION;
+  OC.activeSwVersion = null;
+
+  OC.getVersionInfo = () => ({
+    appVersion: OC.APP_VERSION,
+    latestCacheVersion: OC.SW_CACHE_VERSION,
+    activeCacheVersion: activeSwVersion || OC.activeSwVersion || null,
+    standalone: isStandalone(),
+    updatePending: Boolean(swRegistration?.waiting),
+    installReady: isInstallReady(),
+  });
   OC.initPWA = initPWA;
   OC.isStandalone = isStandalone;
   OC.promptInstall = promptInstall;
   OC.isInstallReady = isInstallReady;
   OC.applyAppUpdate = applyUpdate;
   OC.checkForUpdate = checkForUpdate;
+  OC.requestSwVersion = requestSwVersion;
   OC.getPWAStatus = () => ({
     installReady: isInstallReady(),
     standalone: isStandalone(),
