@@ -28,6 +28,13 @@
     'deep-sleep': 'white-noise',
   };
 
+  const LIBRARY_HINTS = {
+    'white-noise': '사무실 백색소음 재생 중 — 편안히 호흡하며 집중해 보세요.',
+    'desk-stretch': '책상 앞 스트레칭 재생 중 — 몸을 천천히 풀어 주세요.',
+    'deep-sleep': '야근 후 딥슬립 재생 중 — 긴장을 내려놓고 쉬어 가세요.',
+    'burnout-recovery': '번아웃 회복 명상 재생 중 — 자기 자비를 회복해 보세요.',
+  };
+
   function loadUserState() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -125,22 +132,6 @@
     setPhase();
   }
 
-  function runAIScript(script, outputEl, cursorEl) {
-    OC.stopTyping();
-    OC.typeText(script, outputEl, cursorEl);
-  }
-
-  function resolveMeditationTrack(presetKey, userLevel) {
-    let trackId = MEDITATION_TRACKS[presetKey] || 'white-noise';
-    const required = OC.getLevelRequired(trackId);
-
-    if (userLevel < required) {
-      trackId = TRACK_LEVEL_FALLBACK[trackId] || 'white-noise';
-    }
-
-    return trackId;
-  }
-
   document.addEventListener('DOMContentLoaded', () => {
     let userState = validateStreak(loadUserState());
     updateStreakUI(userState);
@@ -149,15 +140,62 @@
 
     const levelGate = OC.initLevelGate(() => userState);
     const progress = OC.initProgress(() => userState, saveUserState, levelGate.updateLevelUI);
-    const audioUI = OC.initAudioPlayerUI();
-    OC.initMusicToggle(audioUI);
-
     const outputEl = document.getElementById('aiOutputText');
     const cursorEl = document.getElementById('typingCursor');
     const stressInput = document.getElementById('stressInput');
+    const breatheCtaEl = document.getElementById('aiBreatheCta');
+    const libraryHintEl = document.getElementById('libraryNowPlayingHint');
+
+    function hideLibraryHint() {
+      if (libraryHintEl) {
+        libraryHintEl.hidden = true;
+        libraryHintEl.textContent = '';
+      }
+    }
+
+    const audioUI = OC.initAudioPlayerUI((trackId) => {
+      if (!trackId) hideLibraryHint();
+    });
+    OC.initMusicToggle(audioUI);
+    const tabsApi = OC.initTabs();
+
+    function hideBreatheCta() {
+      if (breatheCtaEl) breatheCtaEl.hidden = true;
+    }
+
+    function showBreatheCta() {
+      if (breatheCtaEl) breatheCtaEl.hidden = false;
+    }
+
+    function runAIScript(script, outputEl, cursorEl, options = {}) {
+      const { showBreatheGuide = false } = options;
+      hideBreatheCta();
+      OC.stopTyping();
+      OC.typeText(script, outputEl, cursorEl, 28, () => {
+        if (showBreatheGuide) showBreatheCta();
+      });
+    }
+
+    function showLibraryHint(trackId) {
+      if (!libraryHintEl) return;
+      const hint = LIBRARY_HINTS[trackId] || OC.getTrackTitle(trackId) + ' 재생 중';
+      libraryHintEl.textContent = hint;
+      libraryHintEl.hidden = false;
+    }
+
+    function resolveMeditationTrack(presetKey, userLevel) {
+      let trackId = MEDITATION_TRACKS[presetKey] || 'white-noise';
+      const required = OC.getLevelRequired(trackId);
+
+      if (userLevel < required) {
+        trackId = TRACK_LEVEL_FALLBACK[trackId] || 'white-noise';
+      }
+
+      return trackId;
+    }
 
     async function handleAISession(script, presetKey) {
-      runAIScript(script, outputEl, cursorEl);
+      runAIScript(script, outputEl, cursorEl, { showBreatheGuide: true });
 
       if (OC.isMusicEnabled()) {
         const trackId = resolveMeditationTrack(presetKey, userState.level || 1);
@@ -167,6 +205,10 @@
       progress.addXP(progress.rewards.aiScript, 'AI 명상 스크립트');
       progress.refresh();
     }
+
+    document.getElementById('goToBreatheBtn')?.addEventListener('click', () => {
+      tabsApi?.setActiveTab('breathe');
+    });
 
     OC.initJournal(() => userState, saveUserState, (amount, reason) => {
       progress.addXP(amount, reason);
@@ -230,14 +272,15 @@
         if (started) {
           progress.addXP(progress.rewards.audioPlay, '오디오 재생');
           progress.refresh();
-          runAIScript(OC.getSessionScript(trackId), outputEl, cursorEl);
+          showLibraryHint(trackId);
+        } else {
+          hideLibraryHint();
         }
       });
     });
 
     OC.initNotifications(() => userState);
     OC.initGallery();
-    OC.initTabs();
     initBreatheGuide();
   });
 })();

@@ -45,20 +45,18 @@ body {
 }
 
 .app {
-  max-width: 1440px;
+  max-width: 640px;
   margin: 0 auto;
-  padding: 1.5rem;
-  min-height: 100vh;
+  padding: 0;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 0;
+  width: 100%;
 }
 
-.app.is-mobile-tabs {
-  padding: 0;
-  gap: 0;
-  max-width: none;
-  min-height: 100dvh;
+.app.is-tab-mode {
+  padding-bottom: calc(4.25rem + env(safe-area-inset-bottom, 0px));
 }
 
 /* ---- Home Panel ---- */
@@ -122,20 +120,31 @@ body {
 }
 
 .home-hero__stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.home-hero__stats .stat-card {
+  min-width: 0;
+}
+
+.home-hero__stats .streak-badge {
+  grid-column: 1 / -1;
+  width: 100%;
+  justify-content: center;
 }
 
 .home-hero__actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 0.5rem;
 }
 
 .home-hero__actions .btn {
-  flex: 1;
-  min-width: 140px;
+  width: 100%;
+  min-width: 0;
 }
 
 .home-music {
@@ -417,17 +426,19 @@ body {
   box-shadow: 0 4px 20px rgba(124, 58, 237, 0.35);
 }
 
-/* ---- Tab Navigation (mobile) ---- */
+/* ---- Tab Navigation ---- */
 .tab-nav {
-  display: none;
+  display: flex;
   position: fixed;
   bottom: 0;
-  left: 0;
-  right: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 640px;
   z-index: 900;
   background: var(--bg-panel);
   border-top: 1px solid var(--border-subtle);
-  padding: 0.35rem 0.5rem calc(0.35rem + env(safe-area-inset-bottom, 0px));
+  padding: 0.3rem 0.4rem calc(0.3rem + env(safe-area-inset-bottom, 0px));
   box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.35);
 }
 
@@ -450,7 +461,7 @@ body {
 
 .tab-nav__btn.is-active {
   color: var(--accent-sky);
-  background: var(--accent-glow-sky);
+  background: rgba(56, 189, 248, 0.12);
 }
 
 .tab-nav__icon {
@@ -471,10 +482,33 @@ body {
 /* ---- Dashboard Grid ---- */
 .dashboard {
   flex: 1;
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 1.25rem;
-  align-items: stretch;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+[data-tab-panel] {
+  display: none !important;
+  flex: 1;
+  flex-direction: column;
+  min-height: calc(100dvh - 4.25rem - env(safe-area-inset-bottom, 0px));
+  border-radius: 0;
+  margin: 0;
+  overflow-y: auto;
+}
+
+[data-tab-panel].is-active {
+  display: flex !important;
+}
+
+.panel--home.is-active .home-hero {
+  flex: 1;
+  min-height: 100%;
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  justify-content: flex-start;
 }
 
 .panel {
@@ -577,14 +611,60 @@ body {
 
 .preset-tag {
   display: block;
-  font-size: 0.6rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
+  font-size: 0.58rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
   margin-top: 0.2rem;
+  color: var(--accent-sky);
+  opacity: 0.85;
 }
 
-.preset-tag--free {
+.panel__desc--ai,
+.panel__desc--library {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin-top: -0.25rem;
+}
+
+.library-hint {
+  padding: 0.75rem 1rem;
+  background: rgba(52, 211, 153, 0.08);
+  border: 1px solid rgba(52, 211, 153, 0.25);
+  border-radius: var(--radius-md);
+  font-size: 0.82rem;
   color: var(--accent-mint);
+  line-height: 1.5;
+}
+
+.library-hint[hidden] {
+  display: none !important;
+}
+
+.ai-breathe-cta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  margin-top: 0.5rem;
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: var(--radius-md);
+}
+
+.ai-breathe-cta[hidden] {
+  display: none !important;
+}
+
+.ai-breathe-cta__text {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.ai-breathe-cta .btn--accent {
+  width: 100%;
 }
 
 .ai-output {
@@ -1022,6 +1102,10 @@ body {
   gap: 0.6rem;
 }
 
+.audio-player[hidden] {
+  display: none !important;
+}
+
 .audio-player__info {
   display: flex;
   flex-direction: column;
@@ -1185,90 +1269,7 @@ body {
   margin-top: 0.75rem;
 }
 
-/* ---- Responsive ---- */
-@media (max-width: 899px) {
-  .app.is-mobile-tabs {
-    padding: 0 0 calc(4.25rem + env(safe-area-inset-bottom, 0px));
-  }
-
-  .tab-nav {
-    display: flex;
-  }
-
-  .dashboard {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    grid-template-columns: none;
-    gap: 0;
-    min-height: 0;
-  }
-
-  [data-tab-panel] {
-    display: none !important;
-    flex: 1;
-    min-height: 0;
-    border-radius: 0;
-    margin: 0;
-  }
-
-  [data-tab-panel].is-active {
-    display: flex !important;
-    flex-direction: column;
-  }
-
-  .panel--home.is-active .home-hero {
-    flex: 1;
-    min-height: calc(100dvh - 4.25rem - env(safe-area-inset-bottom, 0px));
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
-    justify-content: flex-start;
-  }
-
-  .home-hero__stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .home-hero__subtitle {
-    display: none;
-  }
-
-  .streak-badge {
-    grid-column: 1 / -1;
-    justify-content: center;
-  }
-
-  .home-hero__actions {
-    flex-direction: column;
-  }
-
-  .home-hero__actions .btn {
-    width: 100%;
-    min-width: 0;
-  }
-
-  .panel--ai.is-active,
-  .panel--breathe.is-active,
-  .panel--library.is-active,
-  .panel--journal.is-active {
-    min-height: calc(100dvh - 4.25rem - env(safe-area-inset-bottom, 0px));
-    border-radius: 0;
-    border-left: none;
-    border-right: none;
-    overflow-y: auto;
-  }
-
-  .quick-presets {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .panel--journal .journal-history {
-    max-height: none;
-  }
-}
-
+/* ---- Responsive tweaks ---- */
 @media (max-width: 480px) {
   .quick-presets {
     grid-template-columns: 1fr;
@@ -1281,42 +1282,8 @@ body {
   .tab-nav__label {
     font-size: 0.52rem;
   }
-}
 
-@media (min-width: 900px) {
-  .tab-nav {
-    display: none;
-  }
-
-  .dashboard {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
-    grid-template-rows: auto 1fr;
-    grid-template-areas:
-      "home home home home"
-      "ai breathe library journal";
-    gap: 1.25rem;
-    align-items: stretch;
-  }
-
-  .panel--home { grid-area: home; }
-  .panel--ai { grid-area: ai; }
-  .panel--breathe { grid-area: breathe; }
-  .panel--library { grid-area: library; }
-  .panel--journal { grid-area: journal; }
-
-  [data-tab-panel] {
-    display: flex;
-  }
-
-  .panel--home {
-    padding: 0;
-    background: transparent;
-    border: none;
-    box-shadow: none;
-  }
-
-  .home-hero {
-    width: 100%;
+  .home-hero__title {
+    font-size: 1.35rem;
   }
 }

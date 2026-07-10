@@ -29,29 +29,6 @@
 </head>
 <body>
   <div class="app">
-    <nav class="tab-nav" role="tablist" aria-label="메인 메뉴">
-      <button class="tab-nav__btn is-active" role="tab" data-tab="home" aria-selected="true" aria-controls="tabPanelHome" id="tabBtnHome" type="button">
-        <span class="tab-nav__icon" aria-hidden="true">🏠</span>
-        <span class="tab-nav__label">홈</span>
-      </button>
-      <button class="tab-nav__btn" role="tab" data-tab="ai" aria-selected="false" aria-controls="tabPanelAi" id="tabBtnAi" type="button">
-        <span class="tab-nav__icon" aria-hidden="true">🧠</span>
-        <span class="tab-nav__label">AI</span>
-      </button>
-      <button class="tab-nav__btn" role="tab" data-tab="breathe" aria-selected="false" aria-controls="tabPanelBreathe" id="tabBtnBreathe" type="button">
-        <span class="tab-nav__icon" aria-hidden="true">🌬️</span>
-        <span class="tab-nav__label">브리드</span>
-      </button>
-      <button class="tab-nav__btn" role="tab" data-tab="library" aria-selected="false" aria-controls="tabPanelLibrary" id="tabBtnLibrary" type="button">
-        <span class="tab-nav__icon" aria-hidden="true">🎧</span>
-        <span class="tab-nav__label">라이브러리</span>
-      </button>
-      <button class="tab-nav__btn" role="tab" data-tab="journal" aria-selected="false" aria-controls="tabPanelJournal" id="tabBtnJournal" type="button">
-        <span class="tab-nav__icon" aria-hidden="true">📔</span>
-        <span class="tab-nav__label">감사일기</span>
-      </button>
-    </nav>
-
     <main class="dashboard">
       <section class="panel panel--home is-active" data-tab-panel="home" id="tabPanelHome" aria-label="홈">
         <div class="home-hero">
@@ -121,8 +98,10 @@
       <section class="panel panel--ai" data-tab-panel="ai" id="tabPanelAi" aria-labelledby="aiPanelTitle">
         <div class="panel__header">
           <h2 class="panel__title" id="aiPanelTitle">AI 스트레스 진단실</h2>
-          <span class="panel__badge">실시간 코칭</span>
+          <span class="panel__badge">맞춤 코칭 · 브리드 연동</span>
         </div>
+
+        <p class="panel__desc panel__desc--ai">상황별 명상 코칭 스크립트를 받고, 브리드 탭에서 호흡을 이어가세요.</p>
 
         <label class="input-label" for="stressInput">지금 어떤 상황인가요?</label>
         <textarea
@@ -135,15 +114,19 @@
         <div class="quick-presets" role="group" aria-label="상황 퀵 프리셋">
           <button class="btn btn--preset" data-preset="meeting" type="button">
             회의 5분 전
+            <span class="preset-tag">코칭 스크립트</span>
           </button>
           <button class="btn btn--preset" data-preset="boss" type="button">
             상사 잔소리 직후
+            <span class="preset-tag">코칭 스크립트</span>
           </button>
           <button class="btn btn--preset" data-preset="commute" type="button">
             출근길 무기력
+            <span class="preset-tag">코칭 스크립트</span>
           </button>
           <button class="btn btn--preset" data-preset="overtime" type="button">
             야근 번아웃
+            <span class="preset-tag">코칭 스크립트</span>
           </button>
         </div>
 
@@ -156,6 +139,11 @@
             <span id="aiOutputText"></span>
             <span class="typing-cursor" id="typingCursor" aria-hidden="true">|</span>
           </div>
+        </div>
+
+        <div class="ai-breathe-cta" id="aiBreatheCta" hidden>
+          <p class="ai-breathe-cta__text">브리드 화면을 선택하세요. 스크립트를 읽었다면 호흡을 이어가 보세요.</p>
+          <button class="btn btn--accent" id="goToBreatheBtn" type="button">브리드로 이동</button>
         </div>
       </section>
 
@@ -187,13 +175,17 @@
           <span class="panel__badge panel__badge--library" id="libraryBadge">내 레벨 Lv.1</span>
         </div>
 
+        <p class="panel__desc panel__desc--library">배경음·효과음 — 호흡은 브리드 탭에서 이어가세요.</p>
+
+        <p class="library-hint" id="libraryNowPlayingHint" hidden></p>
+
         <ul class="audio-list" id="audioList">
           <li class="audio-item audio-item--free is-unlocked">
             <button class="audio-item__btn" data-audio="white-noise" type="button">
               <span class="audio-item__icon">🌊</span>
               <span class="audio-item__info">
                 <span class="audio-item__title">사무실 백색소음</span>
-                <span class="audio-item__meta">5분 · 기본</span>
+                <span class="audio-item__meta">5분 · 집중용 사운드</span>
               </span>
             </button>
           </li>
@@ -202,7 +194,7 @@
               <span class="audio-item__icon">🪑</span>
               <span class="audio-item__info">
                 <span class="audio-item__title">책상 앞 스트레칭</span>
-                <span class="audio-item__meta">3분 · 기본</span>
+                <span class="audio-item__meta">3분 · 몸 풀기 사운드</span>
               </span>
             </button>
           </li>
@@ -250,6 +242,29 @@
         </div>
       </section>
     </main>
+
+    <nav class="tab-nav" role="tablist" aria-label="메인 메뉴">
+      <button class="tab-nav__btn is-active" role="tab" data-tab="home" aria-selected="true" aria-controls="tabPanelHome" id="tabBtnHome" type="button">
+        <span class="tab-nav__icon" aria-hidden="true">🏠</span>
+        <span class="tab-nav__label">홈</span>
+      </button>
+      <button class="tab-nav__btn" role="tab" data-tab="ai" aria-selected="false" aria-controls="tabPanelAi" id="tabBtnAi" type="button">
+        <span class="tab-nav__icon" aria-hidden="true">🧠</span>
+        <span class="tab-nav__label">AI</span>
+      </button>
+      <button class="tab-nav__btn" role="tab" data-tab="breathe" aria-selected="false" aria-controls="tabPanelBreathe" id="tabBtnBreathe" type="button">
+        <span class="tab-nav__icon" aria-hidden="true">🌬️</span>
+        <span class="tab-nav__label">브리드</span>
+      </button>
+      <button class="tab-nav__btn" role="tab" data-tab="library" aria-selected="false" aria-controls="tabPanelLibrary" id="tabBtnLibrary" type="button">
+        <span class="tab-nav__icon" aria-hidden="true">🎧</span>
+        <span class="tab-nav__label">라이브러리</span>
+      </button>
+      <button class="tab-nav__btn" role="tab" data-tab="journal" aria-selected="false" aria-controls="tabPanelJournal" id="tabBtnJournal" type="button">
+        <span class="tab-nav__icon" aria-hidden="true">📔</span>
+        <span class="tab-nav__label">감사일기</span>
+      </button>
+    </nav>
   </div>
 
   <div class="xp-toast" id="xpToast" aria-live="polite"></div>

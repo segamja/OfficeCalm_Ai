@@ -103,7 +103,7 @@
 
   let typingTimer = null;
 
-  function typeText(text, outputEl, cursorEl, speed = 28) {
+  function typeText(text, outputEl, cursorEl, speed = 28, onComplete) {
     stopTyping();
     outputEl.textContent = '';
     cursorEl.classList.remove('is-hidden');
@@ -118,6 +118,7 @@
       } else {
         cursorEl.classList.add('is-hidden');
         typingTimer = null;
+        if (typeof onComplete === 'function') onComplete();
       }
     }
 

@@ -271,7 +271,10 @@
     toggleBtn.addEventListener('click', () => {
       setMusicEnabled(!musicEnabled);
       updateToggleUI();
-      if (!musicEnabled) audioUI.updateUI();
+      if (!musicEnabled) {
+        stop();
+        audioUI.updateUI();
+      }
     });
 
     updateToggleUI();
