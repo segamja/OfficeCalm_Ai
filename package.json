@@ -1,0 +1,16 @@
+{
+  "name": "officecalm-ai",
+  "version": "1.0.0",
+  "description": "직장인을 위한 AI 명상 및 멘탈 케어 웹앱 MVP",
+  "private": true,
+  "scripts": {
+    "start": "npx serve . -l 3000",
+    "serve": "npx serve ."
+  },
+  "keywords": [
+    "meditation",
+    "wellness",
+    "vanilla-js"
+  ],
+  "license": "MIT"
+}

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OfficeCalm AI — 직장인 명상 대시보드</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="header__brand">
+        <div class="header__logo" aria-hidden="true">🧘</div>
+        <div>
+          <h1 class="header__title">OfficeCalm AI</h1>
+          <p class="header__subtitle">직장인을 위한 AI 멘탈 케어</p>
+        </div>
+      </div>
+      <div class="header__actions">
+        <div class="streak-badge" id="streakBadge" aria-live="polite">
+          <span class="streak-badge__icon">🔥</span>
+          <span class="streak-badge__count" id="streakCount">0</span>
+          <span class="streak-badge__label">일 연속</span>
+        </div>
+        <button class="btn btn--notify" id="notifyBtn" type="button" title="명상 리마인더 알림">
+          🔕 알림 OFF
+        </button>
+        <button class="btn btn--primary" id="completeRitualBtn" type="button">
+          오늘의 명상 완료
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Dashboard -->
+    <main class="dashboard">
+      <!-- Left: AI 진단실 -->
+      <section class="panel panel--ai" aria-labelledby="aiPanelTitle">
+        <div class="panel__header">
+          <h2 class="panel__title" id="aiPanelTitle">AI 스트레스 진단실</h2>
+          <span class="panel__badge">실시간 코칭</span>
+        </div>
+
+        <label class="input-label" for="stressInput">지금 어떤 상황인가요?</label>
+        <textarea
+          id="stressInput"
+          class="stress-input"
+          rows="4"
+          placeholder="예: 오늘 발표가 있는데 긴장돼요..."
+        ></textarea>
+
+        <div class="quick-presets" role="group" aria-label="상황 퀵 프리셋">
+          <button class="btn btn--preset btn--free" data-preset="meeting" type="button">
+            회의 5분 전
+            <span class="preset-tag preset-tag--free">FREE</span>
+          </button>
+          <button class="btn btn--preset" data-preset="boss" type="button">
+            상사 잔소리 직후
+          </button>
+          <button class="btn btn--preset" data-preset="commute" type="button">
+            출근길 무기력
+          </button>
+          <button class="btn btn--preset" data-preset="overtime" type="button">
+            야근 번아웃
+          </button>
+        </div>
+
+        <button class="btn btn--accent" id="generateBtn" type="button">
+          AI 명상 스크립트 생성
+        </button>
+
+        <div class="ai-output" aria-live="polite">
+          <div class="ai-output__cursor-line">
+            <span id="aiOutputText"></span>
+            <span class="typing-cursor" id="typingCursor" aria-hidden="true">|</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Center: 브리드 버블 -->
+      <section class="panel panel--breathe" aria-labelledby="breathePanelTitle">
+        <div class="panel__header panel__header--center">
+          <h2 class="panel__title" id="breathePanelTitle">오피스 브리드</h2>
+          <p class="panel__desc">4초 들이쉬기 · 2초 멈추기 · 4초 내쉬기</p>
+        </div>
+
+        <div class="breathe-stage">
+          <div class="breathe-bubble" id="breatheBubble" aria-hidden="true"></div>
+          <p class="breathe-guide" id="breatheGuide">들이쉬기</p>
+        </div>
+
+        <div class="breathe-legend">
+          <span class="legend-item legend-item--inhale">들이쉬기</span>
+          <span class="legend-item legend-item--hold">멈추기</span>
+          <span class="legend-item legend-item--exhale">내쉬기</span>
+        </div>
+      </section>
+
+      <!-- Right: 콘텐츠 라이브러리 -->
+      <section class="panel panel--library" aria-labelledby="libraryPanelTitle">
+        <div class="panel__header">
+          <h2 class="panel__title" id="libraryPanelTitle">콘텐츠 라이브러리</h2>
+          <span class="panel__badge panel__badge--premium" id="premiumBadge">FREE</span>
+        </div>
+
+        <ul class="audio-list" id="audioList">
+          <li class="audio-item audio-item--free">
+            <button class="audio-item__btn" data-audio="white-noise" type="button">
+              <span class="audio-item__icon">🌊</span>
+              <span class="audio-item__info">
+                <span class="audio-item__title">사무실 백색소음</span>
+                <span class="audio-item__meta">5분 · 무료</span>
+              </span>
+            </button>
+          </li>
+          <li class="audio-item audio-item--free">
+            <button class="audio-item__btn" data-audio="desk-stretch" type="button">
+              <span class="audio-item__icon">🪑</span>
+              <span class="audio-item__info">
+                <span class="audio-item__title">책상 앞 스트레칭</span>
+                <span class="audio-item__meta">3분 · 무료</span>
+              </span>
+            </button>
+          </li>
+          <li class="audio-item audio-item--premium">
+            <button class="audio-item__btn" data-audio="deep-sleep" data-premium="true" type="button">
+              <span class="audio-item__icon">🌙</span>
+              <span class="audio-item__info">
+                <span class="audio-item__title">야근 후 딥슬립</span>
+                <span class="audio-item__meta">20분 · 프리미엄</span>
+              </span>
+              <span class="audio-item__lock">🔒</span>
+            </button>
+          </li>
+          <li class="audio-item audio-item--premium">
+            <button class="audio-item__btn" data-audio="burnout-recovery" data-premium="true" type="button">
+              <span class="audio-item__icon">💚</span>
+              <span class="audio-item__info">
+                <span class="audio-item__title">번아웃 회복 명상</span>
+                <span class="audio-item__meta">15분 · 프리미엄</span>
+              </span>
+              <span class="audio-item__lock">🔒</span>
+            </button>
+          </li>
+        </ul>
+
+        <div class="audio-player" id="audioPlayer" hidden>
+          <div class="audio-player__info">
+            <span class="audio-player__label">재생 중</span>
+            <span class="audio-player__title" id="nowPlayingTitle">-</span>
+          </div>
+          <div class="audio-player__controls">
+            <button class="audio-player__btn" id="audioPlayPauseBtn" type="button" aria-label="일시정지">⏸</button>
+            <input class="audio-player__volume" id="audioVolume" type="range" min="0" max="100" value="45" aria-label="볼륨">
+            <button class="audio-player__btn" id="audioStopBtn" type="button" aria-label="정지">⏹</button>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Paywall Modal -->
+  <div class="modal" id="paywallModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" hidden>
+    <div class="modal__backdrop" id="modalBackdrop"></div>
+    <div class="modal__content">
+      <button class="modal__close" id="modalCloseBtn" type="button" aria-label="닫기">&times;</button>
+      <div class="modal__icon" aria-hidden="true">✨</div>
+      <h2 class="modal__title" id="modalTitle">OfficeCalm Premium</h2>
+      <p class="modal__message">
+        직장인 특화 AI 실시간 명상 코칭은 프리미엄 플랜(월 $9.99) 전용 기능입니다.
+      </p>
+      <ul class="modal__features">
+        <li>모든 상황별 AI 맞춤 코칭</li>
+        <li>프리미엄 오디오 라이브러리</li>
+        <li>무제한 브리드 세션</li>
+      </ul>
+      <button class="btn btn--premium" id="startTrialBtn" type="button">
+        30일 무료 체험 시작하기
+      </button>
+      <p class="modal__footnote">체험 후 자동 결제 없음 · 언제든 해지 가능</p>
+    </div>
+  </div>
+
+  <script src="js/ai-engine.js"></script>
+  <script src="js/paywall.js"></script>
+  <script src="js/audio-player.js"></script>
+  <script src="js/notifications.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
