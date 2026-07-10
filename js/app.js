@@ -4,6 +4,7 @@
 (function () {
   const OC = window.OfficeCalm;
   const STORAGE_KEY = 'officeCalm_user_state';
+  const LAST_PRESET_KEY = 'mindly_last_preset';
 
   const DEFAULT_STATE = {
     streak: 0,
@@ -13,6 +14,9 @@
     mindEnergy: 45,
     lastJournalDate: null,
     gratitudeJournal: [],
+    snapshotMindEnergy: null,
+    snapshotMindEnergyDate: null,
+    dailyMissions: null,
   };
 
   const MEDITATION_TRACKS = {
@@ -28,6 +32,15 @@
     'deep-sleep': 'white-noise',
   };
 
+  const BREATHE_RECOMMENDATIONS = {
+    meeting: '오늘은 회의가 많았습니다. 4-2-4 호흡을 추천합니다.',
+    boss: '긴장이 남아 있다면 어깨를 내리고 4-2-4 호흡을 추천합니다.',
+    commute: '무기력할 때는 천천히 호흡하며 몸의 감각을 느껴 보세요.',
+    overtime: '야근 후에는 짧은 4-2-4 호흡으로 신경을 안정시켜 보세요.',
+    custom: '지금 이 순간, 4-2-4 호흡으로 마음을 가볍게 돌봐 주세요.',
+    default: '오늘은 잠시 멈추고 4-2-4 호흡을 추천합니다.',
+  };
+
   const LIBRARY_HINTS = {
     'white-noise': '사무실 백색소음 재생 중 — 편안히 호흡하며 집중해 보세요.',
     'desk-stretch': '책상 앞 스트레칭 재생 중 — 몸을 천천히 풀어 주세요.',
@@ -38,17 +51,15 @@
     'commute-winddown': '퇴근길 마음 비우기 재생 중 — 오늘은 여기까지, 수고했어요.',
   };
 
-  const DAILY_QUOTES = [
+  const DAILY_AI_MESSAGES = [
+    '오늘도 충분히 잘하고 있습니다.',
+    '회복은 작은 휴식에서 시작됩니다.',
+    '잠깐 쉬어도 괜찮습니다.',
+    '오늘도 함께 성장해 봐요.',
     '오늘도 여기까지 온 나, 정말 잘하고 있어요.',
     '완벽하지 않아도 괜찮아요. 지금 이 순간만큼은 충분합니다.',
     '쉬어가는 것도 업무의 일부예요. 잠시 멈춰도 괜찮습니다.',
-    '나는 내 일을 해내고 있고, 그것만으로도 대단해요.',
-    '숨 한 번 고르고, 오늘의 나에게 "고생했어"라고 말해 주세요.',
-    '비교하지 않아도 돼요. 어제의 나보다 조금만 나아지면 충분합니다.',
-    '지금 이 긴장도 곧 지나갑니다. 나는 충분히 잘 해낼 수 있어요.',
-    '작은 성취도 성취예요. 오늘의 한 걸음을 인정해 주세요.',
     '내 마음을 돌보는 시간, 절대 낭비가 아니에요.',
-    '힘들 때 멈추는 건 포기가 아니라, 다시 나아가기 위한 준비예요.',
   ];
 
   function loadUserState() {
@@ -73,6 +84,23 @@
     const a = new Date(dateStrA + 'T00:00:00');
     const b = new Date(dateStrB + 'T00:00:00');
     return Math.round((b - a) / (1000 * 60 * 60 * 24));
+  }
+
+  function syncMindEnergySnapshot(state) {
+    const today = getTodayString();
+
+    if (state.snapshotMindEnergyDate === today) return state;
+
+    if (state.snapshotMindEnergyDate) {
+      state.snapshotMindEnergy = state.mindEnergy ?? (OC.calculateMindEnergy ? OC.calculateMindEnergy(state) : 45);
+    } else {
+      state.snapshotMindEnergy = OC.calculateMindEnergy ? OC.calculateMindEnergy(state) : 45;
+    }
+
+    state.snapshotMindEnergyDate = today;
+    state.mindEnergy = OC.calculateMindEnergy ? OC.calculateMindEnergy(state) : state.mindEnergy;
+    saveUserState(state);
+    return state;
   }
 
   function validateStreak(state) {
@@ -117,10 +145,10 @@
     countEl.textContent = state.streak;
 
     if (state.lastCompletedDate === today) {
-      btn.textContent = '오늘 완료 ✓';
+      btn.textContent = '오늘도 정말 잘하셨어요 😊';
       btn.disabled = true;
     } else {
-      btn.textContent = '오늘의 명상 완료';
+      btn.textContent = '오늘도 마음을 잘 돌봤어요';
       btn.disabled = false;
     }
   }
@@ -148,18 +176,25 @@
     setPhase();
   }
 
-  function getDailyQuote() {
+  function updateBreatheRecommendation(presetKey) {
+    const el = document.getElementById('breatheRecommendation');
+    if (!el) return;
+    const key = presetKey || localStorage.getItem(LAST_PRESET_KEY) || 'default';
+    el.textContent = BREATHE_RECOMMENDATIONS[key] || BREATHE_RECOMMENDATIONS.default;
+  }
+
+  function getDailyMessage() {
     const today = getTodayString();
     let hash = 0;
     for (let i = 0; i < today.length; i++) {
       hash = (hash * 31 + today.charCodeAt(i)) >>> 0;
     }
-    return DAILY_QUOTES[hash % DAILY_QUOTES.length];
+    return DAILY_AI_MESSAGES[hash % DAILY_AI_MESSAGES.length];
   }
 
   function initDailyQuote() {
     const quoteEl = document.getElementById('dailyQuote');
-    if (quoteEl) quoteEl.textContent = getDailyQuote();
+    if (quoteEl) quoteEl.textContent = getDailyMessage();
   }
 
   function scrollInPanel(panel, target, offset = 12) {
@@ -182,6 +217,7 @@
 
   document.addEventListener('DOMContentLoaded', () => {
     let userState = validateStreak(loadUserState());
+    userState = syncMindEnergySnapshot(userState);
     updateStreakUI(userState);
 
     document.getElementById('todayDate').textContent = OC.formatTodayDate();
@@ -195,6 +231,22 @@
     const breatheCtaEl = document.getElementById('aiBreatheCta');
     const libraryHintEl = document.getElementById('libraryNowPlayingHint');
 
+    const missions = OC.initMissions(
+      () => userState,
+      saveUserState,
+      (amount, reason) => {
+        progress.addXP(amount, reason);
+        progress.refresh();
+      }
+    );
+
+    const tabsApi = OC.initTabs();
+
+    OC.initOnboarding(() => {
+      progress.refresh();
+      missions.updateMissionUI();
+    });
+
     function hideLibraryHint() {
       if (libraryHintEl) {
         libraryHintEl.hidden = true;
@@ -206,7 +258,6 @@
       if (!trackId) hideLibraryHint();
     });
     const musicToggle = OC.initMusicToggle(audioUI);
-    const tabsApi = OC.initTabs();
 
     function showToast(message) {
       const toast = document.getElementById('xpToast');
@@ -252,6 +303,9 @@
     }
 
     async function handleAISession(script, presetKey) {
+      localStorage.setItem(LAST_PRESET_KEY, presetKey);
+      updateBreatheRecommendation(presetKey);
+
       runAIScript(script, outputEl, cursorEl, { showBreatheGuide: true });
 
       if (OC.isMusicEnabled()) {
@@ -259,18 +313,36 @@
         await audioUI.play(trackId);
       }
 
-      progress.addXP(progress.rewards.aiScript, 'AI 명상 스크립트');
+      progress.addXP(progress.rewards.aiScript, 'AI 코칭');
+      missions.completeMission('aiCoaching');
       progress.refresh();
     }
 
+    document.getElementById('startTodayBtn')?.addEventListener('click', () => {
+      tabsApi?.setActiveTab('ai');
+    });
+
     document.getElementById('goToBreatheBtn')?.addEventListener('click', () => {
+      missions.completeMission('breathe');
       tabsApi?.setActiveTab('breathe');
     });
 
-    OC.initJournal(() => userState, saveUserState, (amount, reason) => {
-      progress.addXP(amount, reason);
-      progress.refresh();
+    document.querySelector('[data-tab="breathe"]')?.addEventListener('click', () => {
+      missions.completeMission('breathe');
     });
+
+    OC.initJournal(
+      () => userState,
+      saveUserState,
+      (amount, reason) => {
+        progress.addXP(amount, reason);
+        progress.refresh();
+      },
+      () => {
+        missions.completeMission('journal');
+        missions.updateMissionUI();
+      }
+    );
 
     document.getElementById('completeRitualBtn').addEventListener('click', () => {
       const result = completeRitual(userState);
@@ -279,7 +351,7 @@
 
       if (result.alreadyDone) return;
 
-      progress.addXP(progress.rewards.ritualComplete, '오늘의 명상 완료');
+      progress.addXP(progress.rewards.ritualComplete, '마음 돌보기 완료');
       progress.refresh();
 
       const messages = [
@@ -287,6 +359,7 @@
         '꾸준함이 가장 큰 힘입니다. 내일도 함께해요.',
         '잘 쉬어가고 계시네요. 스트레이크가 올랐습니다!',
       ];
+      tabsApi?.setActiveTab('ai');
       runAIScript(messages[Math.min(userState.streak - 1, messages.length - 1)], outputEl, cursorEl);
     });
 
@@ -345,5 +418,8 @@
 
     OC.initGallery();
     initBreatheGuide();
+    updateBreatheRecommendation(localStorage.getItem(LAST_PRESET_KEY));
+    progress.refresh();
+    missions.updateMissionUI();
   });
 })();

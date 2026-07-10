@@ -230,6 +230,67 @@
     };
   }
 
+  function getPlaybackState() {
+    return {
+      trackId: currentTrackId,
+      isPlaying,
+      volume,
+      title: currentTrackId ? getTrackTitle(currentTrackId) : null,
+      currentTime: audioEl?.currentTime ?? 0,
+      duration: audioEl?.duration && isFinite(audioEl.duration) ? audioEl.duration : 0,
+    };
+  }
+
+  function initMiniPlayer(onSeek) {
+    const miniEl = document.getElementById('miniPlayer');
+    const titleEl = document.getElementById('miniPlayerTitle');
+    const progressEl = document.getElementById('miniPlayerProgress');
+    const playPauseBtn = document.getElementById('miniPlayerPlayPause');
+    const stopBtn = document.getElementById('miniPlayerStop');
+
+    if (!miniEl) return { updateMiniPlayer: () => {} };
+
+    function updateMiniPlayer() {
+      const state = getPlaybackState();
+      const active = Boolean(state.trackId);
+
+      miniEl.hidden = !active;
+      if (!active) return;
+
+      titleEl.textContent = state.title || '-';
+      playPauseBtn.textContent = state.isPlaying ? '⏸' : '▶';
+      playPauseBtn.setAttribute('aria-label', state.isPlaying ? '일시정지' : '재생');
+
+      if (state.duration > 0) {
+        const pct = Math.round((state.currentTime / state.duration) * 100);
+        progressEl.value = pct;
+      }
+    }
+
+    playPauseBtn?.addEventListener('click', () => {
+      togglePlayback();
+      updateMiniPlayer();
+    });
+
+    stopBtn?.addEventListener('click', () => {
+      stop();
+      updateMiniPlayer();
+    });
+
+    progressEl?.addEventListener('input', (e) => {
+      const audio = ensureAudio();
+      if (!audio.duration || !isFinite(audio.duration)) return;
+      const pct = Number(e.target.value) / 100;
+      audio.currentTime = audio.duration * pct;
+      onSeek?.();
+      updateMiniPlayer();
+    });
+
+    ensureAudio().addEventListener('timeupdate', updateMiniPlayer);
+
+    return { updateMiniPlayer };
+  }
+
   function initAudioPlayerUI(onTrackChange) {
     const playerEl = document.getElementById('audioPlayer');
     const titleEl = document.getElementById('nowPlayingTitle');
@@ -238,6 +299,7 @@
     const volumeInput = document.getElementById('audioVolume');
     const libraryPlayerEl = document.getElementById('libraryNowPlaying');
     const libraryTitleEl = document.getElementById('libraryNowPlayingTitle');
+    const mini = initMiniPlayer();
 
     function updateUI() {
       const state = getPlaybackState();
@@ -266,6 +328,8 @@
         libraryPlayerEl.hidden = !isActive;
         if (isActive) libraryTitleEl.textContent = state.title;
       }
+
+      mini.updateMiniPlayer();
     }
 
     playPauseBtn?.addEventListener('click', () => {

@@ -39,7 +39,7 @@
     return (state.gratitudeJournal || []).find((e) => e.date === today);
   }
 
-  function initJournal(getUserState, saveUserState, onXpEarned) {
+  function initJournal(getUserState, saveUserState, onXpEarned, onJournalComplete) {
     const inputEl = document.getElementById('gratitudeInput');
     const saveBtn = document.getElementById('saveJournalBtn');
     const statusEl = document.getElementById('journalStatus');
@@ -96,6 +96,8 @@
         onXpEarned(20, '감사일기 작성');
       }
 
+      onJournalComplete?.();
+
       if (OC.calculateMindEnergy) {
         state.mindEnergy = OC.calculateMindEnergy(state);
         saveUserState(state);
@@ -112,6 +114,7 @@
     if (!initialState.gratitudeJournal) initialState.gratitudeJournal = [];
     renderHistory(initialState.gratitudeJournal);
     updateStatus();
+    if (getTodayEntry(initialState)) onJournalComplete?.();
 
     return { updateStatus, saveEntry };
   }

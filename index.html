@@ -21,26 +21,60 @@
     })();
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mindly — 직장인 멘탈 케어</title>
+  <title>Mindly — Your AI Mental Coach</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=1.6">
+  <link rel="stylesheet" href="css/style.css?v=1.7">
 </head>
 <body>
   <div class="app">
     <main class="dashboard">
       <section class="panel panel--home is-active" data-tab-panel="home" id="tabPanelHome" aria-label="홈">
         <div class="home-hero">
-          <div class="home-hero__brand">
-            <div class="home-hero__logo">
-              <img src="assets/images/care.png" alt="" class="home-hero__logo-img" width="72" height="72">
+          <article class="hero-card fade-in">
+            <p class="hero-card__greeting">
+              <span id="heroGreetingEmoji" aria-hidden="true">🌤</span>
+              <span id="heroGreetingText">좋은 아침입니다.</span>
+            </p>
+            <h2 class="hero-card__name" id="heroNickname">회원님</h2>
+
+            <div class="hero-card__condition">
+              <div class="hero-card__condition-top">
+                <span class="hero-card__condition-label">오늘 컨디션</span>
+                <span class="hero-card__condition-value"><span id="heroMindEnergy">45</span>%</span>
+              </div>
+              <div class="hero-card__condition-bar">
+                <div class="hero-card__condition-fill" id="heroMindEnergyBar"></div>
+              </div>
+              <p class="hero-card__condition-delta" id="heroMindDelta" aria-live="polite"></p>
             </div>
+
+            <div class="hero-card__missions">
+              <h3 class="hero-card__missions-title">오늘의 미션</h3>
+              <ul class="mission-list" id="missionList">
+                <li class="mission-list__item" id="mission-aiCoaching">□ AI 코칭</li>
+                <li class="mission-list__item" id="mission-breathe">□ 호흡</li>
+                <li class="mission-list__item" id="mission-journal">□ 감사일기</li>
+              </ul>
+              <p class="hero-card__missions-reward" id="missionReward">보상 +40XP</p>
+            </div>
+
+            <button class="btn btn--primary btn--hero-start" id="startTodayBtn" type="button">
+              오늘 시작하기
+            </button>
+          </article>
+
+          <div class="home-hero__brand">
+            <button class="home-hero__logo mindly-character" id="mindlyCharacter" type="button" aria-label="Mindly 소개">
+              <img src="assets/images/care.png" alt="" class="home-hero__logo-img" width="72" height="72">
+            </button>
             <div>
               <h1 class="home-hero__title">Mindly</h1>
-              <p class="home-hero__subtitle">직장인을 위한 AI 멘탈 케어</p>
+              <p class="home-hero__subtitle">Your AI Mental Coach</p>
               <p class="home-hero__date" id="todayDate"></p>
             </div>
+            <button class="btn btn--icon settings-btn" id="settingsBtn" type="button" aria-label="설정">⚙️</button>
           </div>
 
           <div class="home-hero__stats">
@@ -71,7 +105,7 @@
 
           <div class="home-hero__actions">
             <button class="btn btn--primary" id="completeRitualBtn" type="button">
-              오늘의 명상 완료
+              오늘도 마음을 잘 돌봤어요
             </button>
           </div>
 
@@ -100,7 +134,19 @@
           <span class="panel__badge">맞춤 코칭 · 브리드 연동</span>
         </div>
 
-        <p class="panel__desc panel__desc--ai">상황별 명상 코칭 스크립트를 받고, 브리드 탭에서 호흡을 이어가세요.</p>
+        <p class="panel__desc panel__desc--ai">Mindly와 대화하듯 상황을 나누고, 맞춤 회복 프로그램을 받아보세요.</p>
+
+        <div class="ai-chat" id="aiChat">
+          <div class="ai-chat__msg ai-chat__msg--coach">
+            <button class="ai-chat__avatar mindly-character" type="button" aria-label="Mindly">
+              <img src="assets/images/care.png" alt="" width="40" height="40">
+            </button>
+            <div class="ai-chat__bubble">
+              <span class="ai-chat__name">Mindly</span>
+              <p class="ai-chat__text" id="aiCoachGreetingText">안녕하세요 😊 지금 어떤 상황인지 편하게 말씀해 주세요.</p>
+            </div>
+          </div>
+        </div>
 
         <label class="input-label" for="stressInput">지금 어떤 상황인가요?</label>
         <textarea
@@ -152,6 +198,10 @@
           <p class="panel__desc">4초 들이쉬기 · 2초 멈추기 · 4초 내쉬기</p>
         </div>
 
+        <p class="breathe-recommendation" id="breatheRecommendation" aria-live="polite">
+          오늘은 잠시 멈추고 4-2-4 호흡을 추천합니다.
+        </p>
+
         <div class="breathe-stage">
           <div class="breathe-bubble" id="breatheBubble" aria-hidden="true"></div>
           <p class="breathe-guide" id="breatheGuide">들이쉬기</p>
@@ -193,6 +243,7 @@
               <span class="audio-item__info">
                 <span class="audio-item__title">사무실 백색소음</span>
                 <span class="audio-item__meta">5분 · 집중용 사운드</span>
+                <span class="audio-item__badge">집중이 필요할 때</span>
               </span>
             </button>
           </li>
@@ -202,6 +253,7 @@
               <span class="audio-item__info">
                 <span class="audio-item__title">책상 앞 스트레칭</span>
                 <span class="audio-item__meta">3분 · 몸 풀기 사운드</span>
+                <span class="audio-item__badge">스트레스가 높을 때</span>
               </span>
             </button>
           </li>
@@ -211,6 +263,7 @@
               <span class="audio-item__info">
                 <span class="audio-item__title">회의 후 진정 호흡</span>
                 <span class="audio-item__meta">3분 · 긴장 풀기 사운드</span>
+                <span class="audio-item__badge">회의 전 추천</span>
               </span>
             </button>
           </li>
@@ -220,6 +273,7 @@
               <span class="audio-item__info">
                 <span class="audio-item__title">오후 집중 부스터</span>
                 <span class="audio-item__meta">5분 · 리프레시 사운드</span>
+                <span class="audio-item__badge">집중이 필요할 때</span>
               </span>
             </button>
           </li>
@@ -229,6 +283,7 @@
               <span class="audio-item__info">
                 <span class="audio-item__title">퇴근길 마음 비우기</span>
                 <span class="audio-item__meta">10분 · Lv.2 해금</span>
+                <span class="audio-item__badge">퇴근 후 추천</span>
               </span>
               <span class="audio-item__lock">Lv.2</span>
             </button>
@@ -239,6 +294,7 @@
               <span class="audio-item__info">
                 <span class="audio-item__title">야근 후 딥슬립</span>
                 <span class="audio-item__meta">20분 · Lv.3 해금</span>
+                <span class="audio-item__badge">잠들기 전 추천</span>
               </span>
               <span class="audio-item__lock">Lv.3</span>
             </button>
@@ -249,6 +305,7 @@
               <span class="audio-item__info">
                 <span class="audio-item__title">번아웃 회복 명상</span>
                 <span class="audio-item__meta">15분 · Lv.5 해금</span>
+                <span class="audio-item__badge">스트레스가 높을 때</span>
               </span>
               <span class="audio-item__lock">Lv.5</span>
             </button>
@@ -302,7 +359,53 @@
     </nav>
   </div>
 
+  <div class="mini-player" id="miniPlayer" hidden aria-label="음악 미니 플레이어">
+    <img class="mini-player__art" id="miniPlayerArt" src="assets/images/care.png" alt="" width="44" height="44">
+    <div class="mini-player__meta">
+      <span class="mini-player__title" id="miniPlayerTitle">-</span>
+      <input class="mini-player__progress" id="miniPlayerProgress" type="range" min="0" max="100" value="0" aria-label="재생 위치">
+    </div>
+    <div class="mini-player__controls">
+      <button class="mini-player__btn" id="miniPlayerPlayPause" type="button" aria-label="일시정지">⏸</button>
+      <button class="mini-player__btn" id="miniPlayerStop" type="button" aria-label="정지">⏹</button>
+    </div>
+  </div>
+
   <div class="xp-toast" id="xpToast" aria-live="polite"></div>
+
+  <div class="modal onboarding-modal" id="onboardingModal" role="dialog" aria-modal="true" aria-labelledby="onboardingTitle" hidden>
+    <div class="onboarding-modal__backdrop"></div>
+    <div class="onboarding-modal__content fade-in">
+      <p class="onboarding-modal__emoji" aria-hidden="true">😊</p>
+      <h2 class="onboarding-modal__title" id="onboardingTitle">안녕하세요</h2>
+      <p class="onboarding-modal__desc">저는 <strong>Mindly</strong>입니다.<br>앞으로 함께 마음을 돌보는 여정을 시작해 볼까요?</p>
+      <p class="onboarding-modal__question">당신을 어떻게 불러드리면 될까요?</p>
+      <input class="onboarding-modal__input" id="onboardingNickname" type="text" maxlength="20" placeholder="닉네임 입력" autocomplete="nickname">
+      <button class="btn btn--primary" id="onboardingStartBtn" type="button">시작하기</button>
+    </div>
+  </div>
+
+  <div class="modal settings-modal" id="settingsModal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle" hidden>
+    <div class="modal__backdrop" id="settingsBackdrop"></div>
+    <div class="modal__content fade-in">
+      <button class="modal__close" id="settingsCloseBtn" type="button" aria-label="닫기">&times;</button>
+      <h2 class="modal__title" id="settingsTitle">설정</h2>
+      <label class="input-label" for="settingsNickname">닉네임</label>
+      <input class="onboarding-modal__input" id="settingsNickname" type="text" maxlength="20" autocomplete="nickname">
+      <button class="btn btn--primary" id="settingsSaveBtn" type="button">저장</button>
+    </div>
+  </div>
+
+  <div class="modal mindly-character-modal" id="mindlyCharacterModal" role="dialog" aria-modal="true" hidden>
+    <div class="modal__backdrop" id="mindlyCharacterBackdrop"></div>
+    <div class="modal__content fade-in">
+      <button class="modal__close" id="mindlyCharacterCloseBtn" type="button" aria-label="닫기">&times;</button>
+      <img src="assets/images/care.png" alt="" class="mindly-character-modal__img" width="80" height="80">
+      <p class="mindly-character-modal__text">안녕하세요.<br>저는 Mindly입니다.<br>오늘도 함께 회복해 볼까요?</p>
+    </div>
+  </div>
+
+  <div class="confetti-layer" id="confettiLayer" aria-hidden="true"></div>
 
   <div class="modal levelup-modal" id="levelUpModal" hidden>
     <div class="levelup-modal__backdrop"></div>
@@ -335,13 +438,15 @@
     </div>
   </div>
 
-  <script src="js/ai-engine.js?v=1.6"></script>
-  <script src="js/level-gate.js?v=1.6"></script>
-  <script src="js/audio-player.js?v=1.6"></script>
-  <script src="js/gallery.js?v=1.6"></script>
-  <script src="js/progress.js?v=1.6"></script>
-  <script src="js/journal.js?v=1.6"></script>
-  <script src="js/tabs.js?v=1.6"></script>
-  <script src="js/app.js?v=1.6"></script>
+  <script src="js/ai-engine.js?v=1.7"></script>
+  <script src="js/level-gate.js?v=1.7"></script>
+  <script src="js/audio-player.js?v=1.7"></script>
+  <script src="js/gallery.js?v=1.7"></script>
+  <script src="js/onboarding.js?v=1.7"></script>
+  <script src="js/missions.js?v=1.7"></script>
+  <script src="js/progress.js?v=1.7"></script>
+  <script src="js/journal.js?v=1.7"></script>
+  <script src="js/tabs.js?v=1.7"></script>
+  <script src="js/app.js?v=1.7"></script>
 </body>
 </html>

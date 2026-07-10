@@ -1,0 +1,142 @@
+/**
+ * Mindly — 닉네임 온보딩 및 설정 (localStorage.nickname)
+ * 향후 Firebase displayName으로 교체 가능하도록 모듈화
+ */
+(function (OC) {
+  const NICKNAME_KEY = 'nickname';
+
+  function getNickname() {
+    try {
+      return localStorage.getItem(NICKNAME_KEY)?.trim() || '';
+    } catch {
+      return '';
+    }
+  }
+
+  function setNickname(name) {
+    const trimmed = (name || '').trim();
+    if (!trimmed) return false;
+    localStorage.setItem(NICKNAME_KEY, trimmed);
+    return true;
+  }
+
+  function getTimeGreeting() {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) return { emoji: '🌤', text: '좋은 아침입니다.' };
+    if (hour >= 12 && hour < 18) return { emoji: '☀️', text: '좋은 오후입니다.' };
+    if (hour >= 18 && hour < 22) return { emoji: '🌆', text: '수고 많으셨어요.' };
+    return { emoji: '🌙', text: '편안한 밤 되세요.' };
+  }
+
+  function formatNicknameDisplay(nickname) {
+    return nickname ? nickname + '님' : '회원님';
+  }
+
+  function updateGreetingUI() {
+    const greeting = getTimeGreeting();
+    const nickname = getNickname();
+
+    const emojiEl = document.getElementById('heroGreetingEmoji');
+    const textEl = document.getElementById('heroGreetingText');
+    const nameEl = document.getElementById('heroNickname');
+    const aiGreetingEl = document.getElementById('aiCoachGreetingText');
+
+    if (emojiEl) emojiEl.textContent = greeting.emoji;
+    if (textEl) textEl.textContent = greeting.text;
+    if (nameEl) nameEl.textContent = formatNicknameDisplay(nickname);
+    if (aiGreetingEl) {
+      aiGreetingEl.textContent =
+        '안녕하세요, ' +
+        formatNicknameDisplay(nickname) +
+        ' 😊\n지금 어떤 상황인지 편하게 말씀해 주세요. 함께 회복해 볼게요.';
+    }
+  }
+
+  function showModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    modal.hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function hideModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
+    modal.hidden = true;
+    document.body.style.overflow = '';
+  }
+
+  function initOnboarding(onComplete) {
+    const onboardingModal = document.getElementById('onboardingModal');
+    const settingsModal = document.getElementById('settingsModal');
+    const nicknameInput = document.getElementById('onboardingNickname');
+    const settingsNicknameInput = document.getElementById('settingsNickname');
+    const startBtn = document.getElementById('onboardingStartBtn');
+    const saveSettingsBtn = document.getElementById('settingsSaveBtn');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const mindlyCharacter = document.getElementById('mindlyCharacter');
+    const characterModal = document.getElementById('mindlyCharacterModal');
+
+    function finishOnboarding() {
+      hideModal('onboardingModal');
+      updateGreetingUI();
+      onComplete?.();
+    }
+
+    if (!getNickname()) {
+      showModal('onboardingModal');
+      nicknameInput?.focus();
+    } else {
+      updateGreetingUI();
+    }
+
+    startBtn?.addEventListener('click', () => {
+      const name = nicknameInput?.value;
+      if (!setNickname(name)) {
+        nicknameInput?.focus();
+        return;
+      }
+      finishOnboarding();
+    });
+
+    nicknameInput?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') startBtn?.click();
+    });
+
+    settingsBtn?.addEventListener('click', () => {
+      if (settingsNicknameInput) settingsNicknameInput.value = getNickname();
+      showModal('settingsModal');
+    });
+
+    saveSettingsBtn?.addEventListener('click', () => {
+      if (!setNickname(settingsNicknameInput?.value)) {
+        settingsNicknameInput?.focus();
+        return;
+      }
+      updateGreetingUI();
+      hideModal('settingsModal');
+    });
+
+    document.getElementById('settingsCloseBtn')?.addEventListener('click', () => hideModal('settingsModal'));
+    document.getElementById('settingsBackdrop')?.addEventListener('click', () => hideModal('settingsModal'));
+
+    mindlyCharacter?.addEventListener('click', () => showModal('mindlyCharacterModal'));
+    document.getElementById('mindlyCharacterCloseBtn')?.addEventListener('click', () =>
+      hideModal('mindlyCharacterModal')
+    );
+    document.getElementById('mindlyCharacterBackdrop')?.addEventListener('click', () =>
+      hideModal('mindlyCharacterModal')
+    );
+
+    onboardingModal?.querySelector('.onboarding-modal__backdrop')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
+    return { getNickname, setNickname, updateGreetingUI, getTimeGreeting, formatNicknameDisplay };
+  }
+
+  OC.getNickname = getNickname;
+  OC.setNickname = setNickname;
+  OC.getTimeGreeting = getTimeGreeting;
+  OC.initOnboarding = initOnboarding;
+})(window.OfficeCalm = window.OfficeCalm || {});

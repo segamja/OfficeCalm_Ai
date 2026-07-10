@@ -62,6 +62,60 @@
     return Math.min(100, Math.max(0, Math.round(score)));
   }
 
+  function showXpToast(amount, reason) {
+    const toast = document.getElementById('xpToast');
+    if (!toast) return;
+
+    toast.textContent = '+' + amount + ' XP · ' + reason;
+    toast.classList.remove('is-visible');
+    void toast.offsetWidth;
+    toast.classList.add('is-visible', 'xp-pop');
+
+    clearTimeout(showXpToast._timer);
+    showXpToast._timer = setTimeout(() => {
+      toast.classList.remove('is-visible', 'xp-pop');
+    }, 800);
+  }
+
+  function playLevelUpChime() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.setValueAtTime(523.25, ctx.currentTime);
+      osc.frequency.setValueAtTime(659.25, ctx.currentTime + 0.12);
+      gain.gain.setValueAtTime(0.12, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.4);
+    } catch {
+      /* optional */
+    }
+  }
+
+  function spawnConfetti() {
+    const layer = document.getElementById('confettiLayer');
+    if (!layer) return;
+
+    layer.innerHTML = '';
+    const colors = ['#38bdf8', '#34d399', '#fbbf24', '#f472b6', '#a78bfa'];
+    for (let i = 0; i < 48; i++) {
+      const piece = document.createElement('span');
+      piece.className = 'confetti-piece';
+      piece.style.left = Math.random() * 100 + '%';
+      piece.style.background = colors[i % colors.length];
+      piece.style.animationDelay = Math.random() * 0.4 + 's';
+      piece.style.animationDuration = 1.2 + Math.random() * 0.8 + 's';
+      layer.appendChild(piece);
+    }
+
+    setTimeout(() => {
+      layer.innerHTML = '';
+    }, 2500);
+  }
+
   function showLevelUpModal(level, title) {
     const modal = document.getElementById('levelUpModal');
     const levelEl = document.getElementById('levelUpNumber');
@@ -74,6 +128,8 @@
     titleEl.textContent = title;
     modal.hidden = false;
     document.body.style.overflow = 'hidden';
+    spawnConfetti();
+    playLevelUpChime();
 
     function close() {
       modal.hidden = true;
@@ -84,17 +140,6 @@
     modal.querySelector('.levelup-modal__backdrop').onclick = close;
 
     setTimeout(close, 4500);
-  }
-
-  function showXpToast(amount, reason) {
-    const toast = document.getElementById('xpToast');
-    if (!toast) return;
-
-    toast.textContent = '+' + amount + ' XP · ' + reason;
-    toast.classList.add('is-visible');
-
-    clearTimeout(showXpToast._timer);
-    showXpToast._timer = setTimeout(() => toast.classList.remove('is-visible'), 2200);
   }
 
   function updateProgressUI(state) {
@@ -108,6 +153,9 @@
     const xpBar = document.getElementById('xpProgressBar');
     const mindEl = document.getElementById('mindEnergyScore');
     const mindBar = document.getElementById('mindEnergyBar');
+    const heroMindEl = document.getElementById('heroMindEnergy');
+    const heroMindBar = document.getElementById('heroMindEnergyBar');
+    const heroDeltaEl = document.getElementById('heroMindDelta');
 
     if (levelEl) levelEl.textContent = 'Lv.' + level;
     if (titleEl) titleEl.textContent = getLevelTitle(level);
@@ -115,6 +163,22 @@
     if (xpBar) xpBar.style.width = getXpProgress(xp, level) + '%';
     if (mindEl) mindEl.textContent = mindEnergy;
     if (mindBar) mindBar.style.width = mindEnergy + '%';
+    if (heroMindEl) heroMindEl.textContent = mindEnergy;
+    if (heroMindBar) heroMindBar.style.width = mindEnergy + '%';
+
+    if (heroDeltaEl) {
+      const snapshot = state.snapshotMindEnergy;
+      if (typeof snapshot === 'number' && snapshot !== mindEnergy) {
+        const diff = mindEnergy - snapshot;
+        const sign = diff > 0 ? '+' : '';
+        heroDeltaEl.textContent = '어제보다 ' + sign + diff + '%';
+        heroDeltaEl.classList.toggle('is-up', diff > 0);
+        heroDeltaEl.classList.toggle('is-down', diff < 0);
+      } else {
+        heroDeltaEl.textContent = '오늘의 컨디션을 체크해 보세요';
+        heroDeltaEl.classList.remove('is-up', 'is-down');
+      }
+    }
   }
 
   function initProgress(getUserState, saveUserState, onLevelChange) {
