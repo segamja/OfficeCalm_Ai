@@ -188,6 +188,7 @@
     });
 
     OC.initNotifications(() => userState);
+    OC.initGallery();
     initBreatheGuide();
   });
 })();
