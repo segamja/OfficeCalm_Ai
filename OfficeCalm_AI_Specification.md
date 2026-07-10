@@ -1,6 +1,6 @@
 # [기술명세서] 직장인 타겟 AI 명상 웹앱 (Mindly)
 
-> **문서 버전:** v1.6 · **최종 갱신:** 2026-07-11  
+> **문서 버전:** v2.2 · **최종 갱신:** 2026-07-11  
 > **배포:** [https://segamja.github.io/OfficeCalm_Ai/](https://segamja.github.io/OfficeCalm_Ai/)
 
 ---
@@ -20,25 +20,32 @@
 
 ```
 OfficeCalm_Ai/
-├── index.html              # 5탭 SPA 마크업
+├── index.html              # 5탭 SPA + PWA 메타·업데이트 배너
+├── manifest.json           # PWA 매니페스트
+├── service-worker.js       # 오프라인 캐싱·버전 업데이트
 ├── README.md
 ├── OfficeCalm_AI_Specification.md
 ├── package.json
 ├── css/
-│   └── style.css           # 5탭 단일 패널, 다크 테마, 브리드 애니메이션
+│   └── style.css
 ├── js/
-│   ├── app.js              # 앱 진입점, 이벤트 바인딩, 상태 연동
-│   ├── ai-engine.js        # AI 프리셋·타이핑 효과 (onComplete 콜백)
-│   ├── level-gate.js       # 레벨 기반 콘텐츠 잠금·안내 모달
-│   ├── audio-player.js     # MP3 재생, 홈 플레이어, 음악 ON/OFF 토글
-│   ├── gallery.js          # 브리드 탭 힐링 이미지 갤러리
-│   ├── progress.js         # XP, 레벨, Mind Energy, 레벨업 모달
-│   ├── journal.js          # 감사일기 작성·히스토리
-│   ├── tabs.js             # 5탭 전환 (PC·모바일 공통)
-│   └── notifications.js    # Web Notification 리마인더
+│   ├── app.js
+│   ├── ai-engine.js
+│   ├── level-gate.js
+│   ├── audio-player.js
+│   ├── gallery.js
+│   ├── progress.js
+│   ├── journal.js
+│   ├── tabs.js
+│   ├── onboarding.js       # 닉네임·인사
+│   ├── missions.js         # 오늘의 미션
+│   ├── settings.js         # Settings 화면
+│   ├── pwa.js              # PWA 설치·SW·업데이트
+│   └── notifications.js    # 레거시
 └── assets/
-    ├── audio/              # MP3 트랙
-    └── images/             # 로고·갤러리 이미지
+    ├── audio/
+    ├── icons/              # PWA 192/512
+    └── images/
 ```
 
 ### 파일별 역할
@@ -74,7 +81,7 @@ OfficeCalm_Ai/
 
 | 탭 | `data-tab-panel` | 포함 콘텐츠 |
 |----|------------------|-------------|
-| 홈 | `home` | Mindly 로고, 서브타이틀, XP·레벨·Mind Energy, 스트릭, 응원 한줄, 명상 완료, 음악 ON/OFF + 플레이어 |
+| 홈 | `home` | Mindly 브랜드·스탯 → Hero Card(인사·미션) → 응원·명상·음악 |
 | AI 관리실 | `ai` | 상황 입력, 퀵 프리셋(코칭 스크립트), AI 출력, 완료 후 브리드 CTA |
 | 오피스 브리드 | `breathe` | 호흡 버블(4-2-4) + 힐링 이미지 갤러리 (8초 랜덤 전환) |
 | 라이브러리 | `library` | 배경음·효과음 목록, 재생 안내 (`#libraryNowPlayingHint`), 미니 플레이어 (`#libraryNowPlaying`) |
@@ -204,8 +211,28 @@ OfficeCalm_Ai/
 
 ### 4.10. 알림 (`notifications.js`)
 
-- Web Notification API 기반 명상 리마인더
-- 홈 탭 알림 ON/OFF 토글
+- Web Notification API 기반 명상 리마인더 (레거시)
+- 홈 UI에서 제거, Settings Notifications는 Coming Soon
+
+### 4.11. 온보딩 (`onboarding.js`)
+
+- `localStorage.nickname` — 최초 실행 닉네임 입력
+- 시간대별 인사, 앱 전역 닉네임 표시
+
+### 4.12. Settings (`settings.js`)
+
+- Home ⚙️ 버튼 진입 (하단 탭 추가 없음)
+- Profile, About Mindly, Privacy/Terms, Coming Soon 메뉴
+- 개발자: Hongmin Park · Email: segamja@gmail.com
+
+### 4.13. PWA (`pwa.js`, `manifest.json`, `service-worker.js`)
+
+| 항목 | 구현 |
+|------|------|
+| 설치 | `beforeinstallprompt` → `prompt()` |
+| 캐싱 | HTML/JS/CSS Network-first, 이미지·MP3 Cache-first |
+| 업데이트 | `CACHE_VERSION` 변경 시 배너 → SKIP_WAITING → reload |
+| 오프라인 | 캐시 폴백, navigate → index.html |
 
 ---
 
@@ -227,22 +254,18 @@ OfficeCalm_Ai/
 
 | 기능 | 상태 | 비고 |
 |------|------|------|
-| 5탭 단일 화면 (PC·모바일 공통) | ✅ 완료 | PC 4열 Grid 제거 |
-| 홈 대시보드 (XP·스트릭·음악 토글) | ✅ 완료 | Mindly 브랜딩, 응원 한줄, 알림 UI 제거 |
-| AI 코칭 스크립트 + 타이핑 | ✅ 완료 | AI 스트레스 **관리실**, 4종 프리셋 + 자유 입력 |
-| AI 완료 후 브리드 CTA | ✅ 완료 | `#goToBreatheBtn` → 브리드 탭 |
-| AI / 라이브러리 역할 분리 | ✅ 완료 | 라이브러리는 패널 안내만 |
-| 라이브러리 원탭 재생 + 미니 플레이어 | ✅ 완료 | 클릭=자동 ON, 모바일 대응 |
-| AI 프리셋 자동 스크롤 | ✅ 완료 | `#aiOutput` 스크립트 영역으로 스크롤 |
-| 오피스 브리드 + 갤러리 | ✅ 완료 | 4-2-4 호흡, 8초 이미지 전환 |
-| 콘텐츠 라이브러리 + 레벨 게이트 | ✅ 완료 | 7종, Lv.2/Lv.3/Lv.5 |
-| 감사일기 + 히스토리 | ✅ 완료 | localStorage 영속화 |
-| XP · 레벨 · Mind Energy | ✅ 완료 | 레벨업 축하 모달 |
-| Web Notification 리마인더 | — | 홈 UI 제거 (레거시 모듈만 유지) |
-| GitHub Pages 배포 | ✅ 완료 | `main` push 시 자동 배포 |
-| 실제 AI API 연동 | ⏳ 미구현 | 프리셋 기반 가상 AI (MVP 범위) |
-| 백엔드·계정 동기화 | ⏳ 미구현 | localStorage only |
-| 네이티브 앱 / PWA | ⏳ 미구현 | 향후 확장 |
+| 5탭 단일 화면 | ✅ | PC·모바일 공통 |
+| 홈 (브랜드→스탯→Hero Card) | ✅ | v2.1 레이아웃 |
+| 온보딩·닉네임 | ✅ | localStorage.nickname |
+| 오늘의 미션 +40XP | ✅ | missions.js |
+| AI 코칭 + 브리드 CTA | ✅ | 대화형 인트로 |
+| 라이브러리 7종 + 추천 배지 | ✅ | 레벨 게이트 |
+| Settings | ✅ | Sprint 03 |
+| PWA 설치 | ✅ | beforeinstallprompt |
+| PWA 자동 업데이트 | ✅ | v2.2 |
+| GitHub Pages 배포 | ✅ | main push |
+| OpenAI API | ⏳ | 프리셋 기반 Mock |
+| Firebase·Push | ⏳ | 향후 |
 
 ---
 
@@ -250,10 +273,7 @@ OfficeCalm_Ai/
 
 | 버전 | 날짜 | 주요 변경 |
 |------|------|-----------|
-| v1.0 | 2026-07 | MVP 초기 — 3탭, localStorage, AI 프리셋 |
-| v1.1 | 2026-07 | 레벨 게이트 도입, 페이월 제거 |
-| v1.2 | 2026-07 | 5탭 레이아웃, 홈 대시보드, 음악 토글 |
-| v1.3 | 2026-07-11 | PC·모바일 5탭 통합, 모바일 GUI 수정, AI/라이브러리 분리, 브리드 CTA |
-| v1.4 | 2026-07-11 | AI 프리셋 스크롤, 라이브러리 원탭 재생, 미니 플레이어, 캐시 버스트 |
-| v1.5 | 2026-07-11 | 응원 한줄, 라이브러리 3종 추가, 알림 UI 제거 |
-| v1.6 | 2026-07-11 | Mindly 리브랜딩, AI 관리실 명칭, 프리셋→출력 영역 스크롤 |
+| v1.0~v1.6 | 2026-07 | 5탭, Mindly 리브랜드, AI/라이브러리 분리 |
+| v1.7~v1.9 | 2026-07-11 | UX v1, PWA, Settings Sprint 03 |
+| v2.0~v2.1 | 2026-07-11 | PWA install fix, 홈 레이아웃 재정렬 |
+| v2.2 | 2026-07-11 | SW Network-first, 자동 업데이트 배너, 문서 갱신 |

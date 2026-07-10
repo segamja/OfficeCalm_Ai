@@ -6,7 +6,7 @@
 
 **라이브 데모:** [https://segamja.github.io/OfficeCalm_Ai/](https://segamja.github.io/OfficeCalm_Ai/)
 
-**MVP 버전:** v2.0 (2026-07-11)
+**MVP 버전:** v2.2 (2026-07-11)
 
 ---
 
@@ -15,7 +15,7 @@
 | 영역 | 상태 | 설명 |
 |------|------|------|
 | 5탭 단일 화면 | ✅ | PC·모바일 공통 하단 탭, 활성 패널 1개 |
-| 홈 대시보드 | ✅ | Hero Card·닉네임 인사·오늘의 미션·Mind Energy |
+| 홈 대시보드 | ✅ | Mindly·스탯 → Hero Card(인사·미션)·응원·음악 |
 | 온보딩 · 닉네임 | ✅ | 최초 실행 닉네임 입력, 설정에서 변경 |
 | AI 대화형 인트로 | ✅ | Mindly 캐릭터 인사, 코칭 스크립트 |
 | 플로팅 미니 플레이어 | ✅ | 재생바·일시정지·정지 (Spotify 스타일) |
@@ -32,7 +32,8 @@
 | XP · 레벨 · Mind Energy | ✅ | 8단계 레벨, 레벨업 축하 모달 |
 | 알림 리마인더 | — | 홈 UI에서 제거 (notifications.js는 레거시) |
 | GitHub Pages 배포 | ✅ | `main` push 시 자동 배포 |
-| PWA (설치·오프라인) | ✅ | manifest, Service Worker, 홈 화면 설치 안내 |
+| PWA (설치·오프라인) | ✅ | manifest, SW, 설치 prompt(), 오프라인 폴백 |
+| PWA 자동 업데이트 | ✅ | 새 버전 감지 → 업데이트 안내 → 자동 새로고침 |
 | Settings | ✅ | Profile, About, Privacy/Terms, Coming Soon 메뉴 |
 | 실제 AI API | ⏳ | 프리셋 기반 가상 AI (향후 연동) |
 | 백엔드·계정 동기화 | ⏳ | localStorage only |
@@ -72,7 +73,7 @@ SQLite 연동은 `sql.js` + WASM 등 추가 라이브러리가 필요하고, Git
 
 | 탭 | 포함 콘텐츠 |
 |----|-------------|
-| **홈** | 로고(Mindly), 서브타이틀, XP·레벨·Mind Energy, 스트릭, 응원 한줄, 오늘의 명상 완료, **음악 재생 ON/OFF** + 플레이어 |
+| **홈** | Mindly 브랜드·스탯(Lv/Mind Energy/연속) → Hero Card(인사·미션·시작) → 응원·명상·음악 |
 | **AI 관리실** | 맞춤 코칭 스크립트, 타이핑 출력, 완료 후 **브리드로 이동** CTA |
 | **오피스 브리드** | 호흡 버블 + 힐링 이미지 갤러리 (8초 랜덤 전환) |
 | **라이브러리** | 배경음·효과음 재생 + 라이브러리 패널 안내 (AI 출력창 미사용) |
@@ -88,10 +89,10 @@ SQLite 연동은 `sql.js` + WASM 등 추가 라이브러리가 필요하고, Git
 ## 주요 기능
 
 ### 1. 홈 (메인 대시보드)
-- XP·레벨·Mind Energy·스트릭 한눈에 확인
-- 오늘의 응원 한줄 문구 (날짜별 랜덤)
-- 오늘의 명상 완료
-- **음악 재생 ON/OFF** 토글 및 미니 플레이어 (볼륨·일시정지·정지)
+- **상단:** Mindly 로고·슬로건·날짜·설정(⚙️)
+- **스탯:** Lv/XP, Mind Energy, 연속 일수
+- **Hero Card:** 시간대 인사, 닉네임, 오늘 컨디션, 오늘의 미션, 오늘 시작하기
+- 응원 한줄, 마음 돌보기 완료, 음악 ON/OFF + 미니 플레이어
 
 ### 2. AI 스트레스 관리실
 - 상황별 **맞춤 명상 코칭 스크립트** + 타이핑 효과
@@ -181,6 +182,8 @@ SQLite 연동은 `sql.js` + WASM 등 추가 라이브러리가 필요하고, Git
 ```
 OfficeCalm_Ai/
 ├── index.html
+├── manifest.json           # PWA 매니페스트
+├── service-worker.js       # 오프라인 캐싱·버전 업데이트
 ├── README.md
 ├── OfficeCalm_AI_Specification.md
 ├── package.json
@@ -195,13 +198,26 @@ OfficeCalm_Ai/
 │   ├── progress.js         # XP·레벨·Mind Energy
 │   ├── journal.js          # 감사일기
 │   ├── tabs.js             # 5탭 전환 (PC·모바일 공통)
-│   └── notifications.js    # 알림
+│   ├── onboarding.js       # 닉네임 온보딩·인사
+│   ├── missions.js         # 오늘의 미션
+│   ├── settings.js         # Settings 화면
+│   ├── pwa.js              # PWA 설치·SW·업데이트
+│   └── notifications.js    # 알림 (레거시)
 └── assets/
     ├── audio/              # MP3 트랙
+    ├── icons/              # PWA 아이콘 (192/512)
     └── images/
-        ├── care.png        # 앱 로고 (자기돌봄 일러스트)
+        ├── care.png        # 앱 로고
         └── calm-01~06.jpg  # 갤러리 이미지
 ```
+
+### PWA 배포·업데이트
+
+배포 시 `service-worker.js`의 `CACHE_VERSION`을 변경합니다 (예: `mindly-v2.2`).
+
+- **개발/온라인:** HTML·JS·CSS는 Network-first — 항상 최신 파일 확인
+- **오프라인:** 캐시된 버전으로 폴백
+- **새 버전:** 상단 "새 버전이 있습니다" 배너 → 업데이트 → 자동 새로고침
 
 ---
 

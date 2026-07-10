@@ -1820,6 +1820,47 @@ body.modal-open .tab-nav {
   cursor: not-allowed;
 }
 
+/* ---- PWA Update Banner ---- */
+.pwa-update-banner {
+  position: fixed;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 640px;
+  padding: 0.85rem 1rem;
+  background: rgba(30, 41, 59, 0.98);
+  border-bottom: 1px solid var(--border-accent);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+  z-index: 1200;
+  animation: slide-down 0.3s ease;
+}
+
+.pwa-update-banner[hidden] {
+  display: none !important;
+}
+
+@keyframes slide-down {
+  from { opacity: 0; transform: translateX(-50%) translateY(-12px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.pwa-update-banner__text {
+  font-size: 0.88rem;
+  color: var(--text-primary);
+  margin-bottom: 0.65rem;
+  line-height: 1.5;
+}
+
+.pwa-update-banner__actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.pwa-update-banner__actions .btn {
+  flex: 1;
+}
+
 .btn--sm {
   padding: 0.55rem 0.85rem;
   font-size: 0.82rem;

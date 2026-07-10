@@ -1,11 +1,14 @@
 /**
- * Mindly — PWA 설치 (beforeinstallprompt) 및 Service Worker 등록
+ * Mindly — PWA 설치, Service Worker 등록, 버전 업데이트
  */
 (function (OC) {
   const DISMISS_KEY = 'mindly_pwa_install_dismissed';
+  const UPDATE_CHECK_MS = 30 * 60 * 1000;
 
   let deferredPrompt = null;
   let swRegistration = null;
+  let refreshing = false;
+  let updateBannerVisible = false;
   const installReadyCallbacks = [];
 
   function getBasePath() {
@@ -70,6 +73,70 @@
     });
   }
 
+  function showUpdateBanner() {
+    if (updateBannerVisible) return;
+    const banner = document.getElementById('pwaUpdateBanner');
+    if (!banner) return;
+    banner.hidden = false;
+    updateBannerVisible = true;
+  }
+
+  function hideUpdateBanner() {
+    const banner = document.getElementById('pwaUpdateBanner');
+    if (banner) banner.hidden = true;
+    updateBannerVisible = false;
+  }
+
+  function handleWaitingWorker(worker) {
+    if (!navigator.serviceWorker.controller) return;
+    showUpdateBanner();
+
+    worker.addEventListener('statechange', () => {
+      if (worker.state === 'activated') {
+        hideUpdateBanner();
+      }
+    });
+  }
+
+  function setupUpdateDetection(registration) {
+    if (!registration) return;
+
+    if (registration.waiting) {
+      handleWaitingWorker(registration.waiting);
+    }
+
+    registration.addEventListener('updatefound', () => {
+      const newWorker = registration.installing;
+      if (!newWorker) return;
+
+      newWorker.addEventListener('statechange', () => {
+        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+          handleWaitingWorker(newWorker);
+        }
+      });
+    });
+
+    const checkForUpdate = () => {
+      registration.update().catch((err) => console.warn('[Mindly PWA] 업데이트 확인 실패:', err));
+    };
+
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) checkForUpdate();
+    });
+
+    window.addEventListener('focus', checkForUpdate);
+    setInterval(checkForUpdate, UPDATE_CHECK_MS);
+    setTimeout(checkForUpdate, 5000);
+  }
+
+  function applyUpdate() {
+    if (!swRegistration?.waiting) {
+      window.location.reload();
+      return;
+    }
+    swRegistration.waiting.postMessage({ type: 'SKIP_WAITING' });
+  }
+
   function showInstallGuide() {
     const modal = document.getElementById('pwaInstallGuideModal');
     const iosGuide = document.getElementById('pwaInstallGuideIos');
@@ -105,11 +172,15 @@
     if (!('serviceWorker' in navigator)) return null;
 
     const base = getBasePath();
-    const swUrl = base + 'service-worker.js';
+    const swUrl = base + 'service-worker.js?v=' + encodeURIComponent(OC.APP_VERSION || '2.2');
 
     try {
-      swRegistration = await navigator.serviceWorker.register(swUrl, { scope: base });
+      swRegistration = await navigator.serviceWorker.register(swUrl, {
+        scope: base,
+        updateViaCache: 'none',
+      });
       console.info('[Mindly PWA] Service Worker 등록:', swRegistration.scope);
+      setupUpdateDetection(swRegistration);
       return swRegistration;
     } catch (err) {
       console.error('[Mindly PWA] Service Worker 등록 실패:', err);
@@ -164,6 +235,12 @@
     }
   });
 
+  navigator.serviceWorker?.addEventListener('controllerchange', () => {
+    if (refreshing) return;
+    refreshing = true;
+    window.location.reload();
+  });
+
   if (window.__mindlyDeferredPrompt) {
     deferredPrompt = window.__mindlyDeferredPrompt;
     notifyInstallReady();
@@ -175,6 +252,8 @@
     const banner = document.getElementById('pwaInstallBanner');
     const installBtn = document.getElementById('pwaInstallBtn');
     const dismissBtn = document.getElementById('pwaInstallDismissBtn');
+    const updateBtn = document.getElementById('pwaUpdateBtn');
+    const updateDismissBtn = document.getElementById('pwaUpdateDismissBtn');
 
     function hideBanner() {
       if (banner) banner.hidden = true;
@@ -200,6 +279,14 @@
       hideBanner();
     });
 
+    updateBtn?.addEventListener('click', () => {
+      applyUpdate();
+    });
+
+    updateDismissBtn?.addEventListener('click', () => {
+      hideUpdateBanner();
+    });
+
     document.getElementById('pwaInstallGuideCloseBtn')?.addEventListener('click', hideInstallGuide);
     document.getElementById('pwaInstallGuideBackdrop')?.addEventListener('click', hideInstallGuide);
 
@@ -216,14 +303,18 @@
     }
   }
 
+  OC.APP_VERSION = '2.2';
   OC.initPWA = initPWA;
   OC.isStandalone = isStandalone;
   OC.promptInstall = promptInstall;
   OC.isInstallReady = isInstallReady;
+  OC.applyAppUpdate = applyUpdate;
   OC.getPWAStatus = () => ({
     installReady: isInstallReady(),
     standalone: isStandalone(),
     swScope: swRegistration?.scope ?? null,
     canUseNativePrompt: canUseNativePrompt(),
+    updateWaiting: Boolean(swRegistration?.waiting),
+    appVersion: OC.APP_VERSION,
   });
 })(window.OfficeCalm = window.OfficeCalm || {});

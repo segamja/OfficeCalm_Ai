@@ -1,7 +1,8 @@
 /**
- * Mindly — Service Worker (오프라인 캐싱)
+ * Mindly — Service Worker (오프라인 캐싱 + 버전 업데이트)
+ * CACHE_VERSION 변경 시 새 버전으로 감지됩니다.
  */
-const CACHE_VERSION = 'mindly-v2.0';
+const CACHE_VERSION = 'mindly-v2.2';
 const CACHE_NAME = 'mindly-static-' + CACHE_VERSION;
 
 const PRECACHE_CRITICAL = [
@@ -39,6 +40,24 @@ const PRECACHE_OPTIONAL = [
   './assets/audio/burnout-recovery.mp3',
 ];
 
+const NETWORK_FIRST_PATTERNS = [
+  /\.html$/,
+  /\.js$/,
+  /\.css$/,
+  /manifest\.json$/,
+  /service-worker\.js$/,
+];
+
+const CACHE_FIRST_PATTERNS = [/\.png$/, /\.jpg$/, /\.mp3$/];
+
+function isNetworkFirst(pathname) {
+  return NETWORK_FIRST_PATTERNS.some((re) => re.test(pathname)) || pathname.endsWith('/');
+}
+
+function isCacheFirst(pathname) {
+  return CACHE_FIRST_PATTERNS.some((re) => re.test(pathname));
+}
+
 async function precacheAll(cache, urls) {
   await Promise.all(
     urls.map(async (url) => {
@@ -51,6 +70,33 @@ async function precacheAll(cache, urls) {
   );
 }
 
+async function networkFirst(request) {
+  try {
+    const response = await fetch(request, { cache: 'no-store' });
+    if (response && response.status === 200) {
+      const cache = await caches.open(CACHE_NAME);
+      cache.put(request, response.clone());
+    }
+    return response;
+  } catch (err) {
+    const cached = await caches.match(request);
+    if (cached) return cached;
+    throw err;
+  }
+}
+
+async function cacheFirst(request) {
+  const cached = await caches.match(request);
+  if (cached) return cached;
+
+  const response = await fetch(request);
+  if (response && response.status === 200) {
+    const cache = await caches.open(CACHE_NAME);
+    cache.put(request, response.clone());
+  }
+  return response;
+}
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches
@@ -59,7 +105,9 @@ self.addEventListener('install', (event) => {
         await precacheAll(cache, PRECACHE_CRITICAL);
         await precacheAll(cache, PRECACHE_OPTIONAL);
       })
-      .then(() => self.skipWaiting())
+      .then(() => {
+        console.info('[Mindly SW] 설치 완료:', CACHE_VERSION);
+      })
   );
 });
 
@@ -76,6 +124,12 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+self.addEventListener('message', (event) => {
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET') return;
@@ -83,38 +137,17 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
-  event.respondWith(
-    caches.match(request).then((cached) => {
-      if (cached) return cached;
+  if (request.mode === 'navigate' || isNetworkFirst(url.pathname)) {
+    event.respondWith(
+      networkFirst(request).catch(() => caches.match('./index.html'))
+    );
+    return;
+  }
 
-      return fetch(request)
-        .then((response) => {
-          if (!response || response.status !== 200 || response.type === 'opaque') {
-            return response;
-          }
+  if (isCacheFirst(url.pathname)) {
+    event.respondWith(cacheFirst(request));
+    return;
+  }
 
-          const isStatic =
-            url.pathname.endsWith('.js') ||
-            url.pathname.endsWith('.css') ||
-            url.pathname.endsWith('.png') ||
-            url.pathname.endsWith('.jpg') ||
-            url.pathname.endsWith('.mp3') ||
-            url.pathname.endsWith('.json') ||
-            url.pathname.endsWith('/');
-
-          if (isStatic) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-          }
-
-          return response;
-        })
-        .catch(() => {
-          if (request.mode === 'navigate') {
-            return caches.match('./index.html');
-          }
-          return caches.match(request);
-        });
-    })
-  );
+  event.respondWith(networkFirst(request).catch(() => caches.match(request)));
 });
