@@ -73,6 +73,17 @@
   let currentTrackId = null;
   let isPlaying = false;
   let volume = 0.45;
+  let musicEnabled = false;
+
+  function isMusicEnabled() {
+    return musicEnabled;
+  }
+
+  function setMusicEnabled(enabled) {
+    musicEnabled = enabled;
+    if (!enabled) stop();
+    return musicEnabled;
+  }
 
   function ensureAudio() {
     if (!audioEl) {
@@ -107,6 +118,7 @@
 
   async function playTrack(trackId) {
     if (!TRACKS[trackId]) return false;
+    if (!musicEnabled) return false;
 
     const audio = ensureAudio();
 
@@ -237,6 +249,7 @@
     return {
       updateUI,
       async play(trackId) {
+        if (!musicEnabled) return false;
         const started = await playTrack(trackId);
         updateUI();
         if (onTrackChange) onTrackChange(trackId, started);
@@ -245,8 +258,29 @@
     };
   }
 
+  function initMusicToggle(audioUI) {
+    const toggleBtn = document.getElementById('musicToggleBtn');
+    if (!toggleBtn) return;
+
+    function updateToggleUI() {
+      toggleBtn.textContent = musicEnabled ? '🎵 음악 재생 ON' : '🎵 음악 재생 OFF';
+      toggleBtn.setAttribute('aria-pressed', musicEnabled ? 'true' : 'false');
+      toggleBtn.classList.toggle('is-on', musicEnabled);
+    }
+
+    toggleBtn.addEventListener('click', () => {
+      setMusicEnabled(!musicEnabled);
+      updateToggleUI();
+      if (!musicEnabled) audioUI.updateUI();
+    });
+
+    updateToggleUI();
+  }
+
   OC.getTrackTitle = getTrackTitle;
   OC.getSessionScript = getSessionScript;
   OC.getLevelRequired = getLevelRequired;
+  OC.isMusicEnabled = isMusicEnabled;
   OC.initAudioPlayerUI = initAudioPlayerUI;
+  OC.initMusicToggle = initMusicToggle;
 })(window.OfficeCalm = window.OfficeCalm || {});

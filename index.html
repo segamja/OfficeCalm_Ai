@@ -29,69 +29,96 @@
 </head>
 <body>
   <div class="app">
-    <header class="header">
-      <div class="header__brand">
-        <div class="header__logo">
-          <img src="assets/images/care.png" alt="" class="header__logo-img" width="52" height="52">
-        </div>
-        <div>
-          <h1 class="header__title">OfficeCalm AI</h1>
-          <p class="header__subtitle">직장인을 위한 AI 멘탈 케어</p>
-          <p class="header__date" id="todayDate"></p>
-        </div>
-      </div>
-
-      <div class="header__stats">
-        <div class="stat-card stat-card--xp">
-          <div class="stat-card__top">
-            <span class="stat-card__label" id="userLevel">Lv.1</span>
-            <span class="stat-card__value" id="userXp">0 XP</span>
-          </div>
-          <p class="stat-card__sub" id="userLevelTitle">새싹 직장인</p>
-          <div class="stat-card__bar"><div class="stat-card__bar-fill" id="xpProgressBar"></div></div>
-        </div>
-        <div class="stat-card stat-card--mind">
-          <div class="stat-card__top">
-            <span class="stat-card__label">Mind Energy</span>
-            <span class="stat-card__value"><span id="mindEnergyScore">45</span>%</span>
-          </div>
-          <p class="stat-card__sub">정신 회복 지표</p>
-          <div class="stat-card__bar stat-card__bar--mind"><div class="stat-card__bar-fill" id="mindEnergyBar"></div></div>
-        </div>
-        <div class="streak-badge" id="streakBadge" aria-live="polite">
-          <span class="streak-badge__icon">🔥</span>
-          <span class="streak-badge__count" id="streakCount">0</span>
-          <span class="streak-badge__label">일 연속</span>
-        </div>
-      </div>
-
-      <div class="header__actions">
-        <button class="btn btn--notify" id="notifyBtn" type="button" title="명상 리마인더 알림">
-          🔕 알림 OFF
-        </button>
-        <button class="btn btn--primary" id="completeRitualBtn" type="button">
-          오늘의 명상 완료
-        </button>
-      </div>
-    </header>
-
     <nav class="tab-nav" role="tablist" aria-label="메인 메뉴">
-      <button class="tab-nav__btn is-active" role="tab" data-tab="ai" aria-selected="true" aria-controls="tabPanelAi" id="tabBtnAi" type="button">
+      <button class="tab-nav__btn is-active" role="tab" data-tab="home" aria-selected="true" aria-controls="tabPanelHome" id="tabBtnHome" type="button">
+        <span class="tab-nav__icon" aria-hidden="true">🏠</span>
+        <span class="tab-nav__label">홈</span>
+      </button>
+      <button class="tab-nav__btn" role="tab" data-tab="ai" aria-selected="false" aria-controls="tabPanelAi" id="tabBtnAi" type="button">
         <span class="tab-nav__icon" aria-hidden="true">🧠</span>
-        <span class="tab-nav__label">AI 진단실</span>
+        <span class="tab-nav__label">AI</span>
       </button>
       <button class="tab-nav__btn" role="tab" data-tab="breathe" aria-selected="false" aria-controls="tabPanelBreathe" id="tabBtnBreathe" type="button">
         <span class="tab-nav__icon" aria-hidden="true">🌬️</span>
-        <span class="tab-nav__label">오피스 브리드</span>
+        <span class="tab-nav__label">브리드</span>
       </button>
       <button class="tab-nav__btn" role="tab" data-tab="library" aria-selected="false" aria-controls="tabPanelLibrary" id="tabBtnLibrary" type="button">
         <span class="tab-nav__icon" aria-hidden="true">🎧</span>
         <span class="tab-nav__label">라이브러리</span>
       </button>
+      <button class="tab-nav__btn" role="tab" data-tab="journal" aria-selected="false" aria-controls="tabPanelJournal" id="tabBtnJournal" type="button">
+        <span class="tab-nav__icon" aria-hidden="true">📔</span>
+        <span class="tab-nav__label">감사일기</span>
+      </button>
     </nav>
 
     <main class="dashboard">
-      <section class="panel panel--ai is-active" data-tab-panel="ai" id="tabPanelAi" aria-labelledby="aiPanelTitle">
+      <section class="panel panel--home is-active" data-tab-panel="home" id="tabPanelHome" aria-label="홈">
+        <div class="home-hero">
+          <div class="home-hero__brand">
+            <div class="home-hero__logo">
+              <img src="assets/images/care.png" alt="" class="home-hero__logo-img" width="72" height="72">
+            </div>
+            <div>
+              <h1 class="home-hero__title">OfficeCalm AI</h1>
+              <p class="home-hero__subtitle">직장인을 위한 AI 멘탈 케어</p>
+              <p class="home-hero__date" id="todayDate"></p>
+            </div>
+          </div>
+
+          <div class="home-hero__stats">
+            <div class="stat-card stat-card--xp">
+              <div class="stat-card__top">
+                <span class="stat-card__label" id="userLevel">Lv.1</span>
+                <span class="stat-card__value" id="userXp">0 XP</span>
+              </div>
+              <p class="stat-card__sub" id="userLevelTitle">새싹 직장인</p>
+              <div class="stat-card__bar"><div class="stat-card__bar-fill" id="xpProgressBar"></div></div>
+            </div>
+            <div class="stat-card stat-card--mind">
+              <div class="stat-card__top">
+                <span class="stat-card__label">Mind Energy</span>
+                <span class="stat-card__value"><span id="mindEnergyScore">45</span>%</span>
+              </div>
+              <p class="stat-card__sub">정신 회복 지표</p>
+              <div class="stat-card__bar stat-card__bar--mind"><div class="stat-card__bar-fill" id="mindEnergyBar"></div></div>
+            </div>
+            <div class="streak-badge" id="streakBadge" aria-live="polite">
+              <span class="streak-badge__icon">🔥</span>
+              <span class="streak-badge__count" id="streakCount">0</span>
+              <span class="streak-badge__label">일 연속</span>
+            </div>
+          </div>
+
+          <div class="home-hero__actions">
+            <button class="btn btn--notify" id="notifyBtn" type="button" title="명상 리마인더 알림">
+              🔕 알림 OFF
+            </button>
+            <button class="btn btn--primary" id="completeRitualBtn" type="button">
+              오늘의 명상 완료
+            </button>
+          </div>
+
+          <div class="home-music">
+            <button class="btn btn--music-toggle" id="musicToggleBtn" type="button" aria-pressed="false">
+              🎵 음악 재생 OFF
+            </button>
+            <div class="audio-player audio-player--home" id="audioPlayer" hidden>
+              <div class="audio-player__info">
+                <span class="audio-player__label">재생 중</span>
+                <span class="audio-player__title" id="nowPlayingTitle">-</span>
+              </div>
+              <div class="audio-player__controls">
+                <button class="audio-player__btn" id="audioPlayPauseBtn" type="button" aria-label="일시정지">⏸</button>
+                <input class="audio-player__volume" id="audioVolume" type="range" min="0" max="100" value="45" aria-label="볼륨">
+                <button class="audio-player__btn" id="audioStopBtn" type="button" aria-label="정지">⏹</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel panel--ai" data-tab-panel="ai" id="tabPanelAi" aria-labelledby="aiPanelTitle">
         <div class="panel__header">
           <h2 class="panel__title" id="aiPanelTitle">AI 스트레스 진단실</h2>
           <span class="panel__badge">실시간 코칭</span>
@@ -200,38 +227,26 @@
             </button>
           </li>
         </ul>
+      </section>
 
-        <div class="library-journal" aria-labelledby="journalPanelTitle">
-          <div class="panel__header">
-            <h2 class="panel__title panel__title--sub" id="journalPanelTitle">감사일기</h2>
-            <span class="panel__badge panel__badge--journal" id="journalStatus">오늘 감사한 일을 기록해 보세요</span>
-          </div>
-
-          <label class="input-label" for="gratitudeInput">오늘 감사한 일 한 가지</label>
-          <textarea
-            id="gratitudeInput"
-            class="journal-input"
-            rows="3"
-            placeholder="예: 동료가 커피를 사줘서 힘이 났어요"
-          ></textarea>
-          <button class="btn btn--journal" id="saveJournalBtn" type="button">감사일기 저장</button>
-
-          <div class="journal-history-wrap">
-            <h3 class="journal-history__title">히스토리</h3>
-            <ul class="journal-history" id="journalHistory"></ul>
-          </div>
+      <section class="panel panel--journal" data-tab-panel="journal" id="tabPanelJournal" aria-labelledby="journalPanelTitle">
+        <div class="panel__header">
+          <h2 class="panel__title" id="journalPanelTitle">감사일기</h2>
+          <span class="panel__badge panel__badge--journal" id="journalStatus">오늘 감사한 일을 기록해 보세요</span>
         </div>
 
-        <div class="audio-player" id="audioPlayer" hidden>
-          <div class="audio-player__info">
-            <span class="audio-player__label">재생 중</span>
-            <span class="audio-player__title" id="nowPlayingTitle">-</span>
-          </div>
-          <div class="audio-player__controls">
-            <button class="audio-player__btn" id="audioPlayPauseBtn" type="button" aria-label="일시정지">⏸</button>
-            <input class="audio-player__volume" id="audioVolume" type="range" min="0" max="100" value="45" aria-label="볼륨">
-            <button class="audio-player__btn" id="audioStopBtn" type="button" aria-label="정지">⏹</button>
-          </div>
+        <label class="input-label" for="gratitudeInput">오늘 감사한 일 한 가지</label>
+        <textarea
+          id="gratitudeInput"
+          class="journal-input"
+          rows="4"
+          placeholder="예: 동료가 커피를 사줘서 힘이 났어요"
+        ></textarea>
+        <button class="btn btn--journal" id="saveJournalBtn" type="button">감사일기 저장</button>
+
+        <div class="journal-history-wrap">
+          <h3 class="journal-history__title">히스토리</h3>
+          <ul class="journal-history" id="journalHistory"></ul>
         </div>
       </section>
     </main>

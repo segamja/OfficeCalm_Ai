@@ -1,13 +1,14 @@
 /**
- * OfficeCalm AI — 모바일 탭 전환 (PC는 3열 동시 노출)
+ * OfficeCalm AI — 모바일 탭 전환 (PC는 대시보드 동시 노출)
  */
 (function (OC) {
   const STORAGE_KEY = 'officeCalm_active_tab';
   const MOBILE_QUERY = '(max-width: 899px)';
-  const DEFAULT_TAB = 'ai';
-  const VALID_TABS = ['ai', 'breathe', 'library'];
+  const DEFAULT_TAB = 'home';
+  const VALID_TABS = ['home', 'ai', 'breathe', 'library', 'journal'];
 
   function initTabs() {
+    const appEl = document.querySelector('.app');
     const tabButtons = Array.from(document.querySelectorAll('.tab-nav__btn[data-tab]'));
     const panels = Array.from(document.querySelectorAll('[data-tab-panel]'));
     const mediaQuery = window.matchMedia(MOBILE_QUERY);
@@ -36,8 +37,12 @@
         panels.forEach((panel) => {
           panel.classList.toggle('is-active', panel.dataset.tabPanel === target);
         });
+        appEl?.classList.add('is-mobile-tabs');
+        appEl?.setAttribute('data-active-tab', target);
       } else {
         panels.forEach((panel) => panel.classList.add('is-active'));
+        appEl?.classList.remove('is-mobile-tabs');
+        appEl?.removeAttribute('data-active-tab');
       }
 
       if (persist !== false) {
@@ -50,6 +55,12 @@
         setActiveTab(getSavedTab(), false);
       } else {
         panels.forEach((panel) => panel.classList.add('is-active'));
+        appEl?.classList.remove('is-mobile-tabs');
+        appEl?.removeAttribute('data-active-tab');
+        tabButtons.forEach((btn) => {
+          btn.classList.remove('is-active');
+          btn.setAttribute('aria-selected', 'false');
+        });
       }
     }
 

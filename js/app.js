@@ -150,6 +150,7 @@
     const levelGate = OC.initLevelGate(() => userState);
     const progress = OC.initProgress(() => userState, saveUserState, levelGate.updateLevelUI);
     const audioUI = OC.initAudioPlayerUI();
+    OC.initMusicToggle(audioUI);
 
     const outputEl = document.getElementById('aiOutputText');
     const cursorEl = document.getElementById('typingCursor');
@@ -158,8 +159,10 @@
     async function handleAISession(script, presetKey) {
       runAIScript(script, outputEl, cursorEl);
 
-      const trackId = resolveMeditationTrack(presetKey, userState.level || 1);
-      await audioUI.play(trackId);
+      if (OC.isMusicEnabled()) {
+        const trackId = resolveMeditationTrack(presetKey, userState.level || 1);
+        await audioUI.play(trackId);
+      }
 
       progress.addXP(progress.rewards.aiScript, 'AI 명상 스크립트');
       progress.refresh();
@@ -211,6 +214,16 @@
         );
 
         if (!levelGate.checkLevelAccess(requiredLevel)) return;
+
+        if (!OC.isMusicEnabled()) {
+          const toast = document.getElementById('xpToast');
+          if (toast) {
+            toast.textContent = '홈 탭에서 음악 재생을 켜주세요';
+            toast.classList.add('is-visible');
+            setTimeout(() => toast.classList.remove('is-visible'), 2200);
+          }
+          return;
+        }
 
         const started = await audioUI.play(trackId);
 
