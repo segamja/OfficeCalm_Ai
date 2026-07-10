@@ -8,7 +8,24 @@
   const DEFAULT_STATE = {
     streak: 0,
     lastCompletedDate: null,
-    isPremium: false,
+    xp: 0,
+    level: 1,
+    mindEnergy: 45,
+    lastJournalDate: null,
+    gratitudeJournal: [],
+  };
+
+  const MEDITATION_TRACKS = {
+    meeting: 'white-noise',
+    boss: 'burnout-recovery',
+    commute: 'desk-stretch',
+    overtime: 'burnout-recovery',
+    custom: 'burnout-recovery',
+  };
+
+  const TRACK_LEVEL_FALLBACK = {
+    'burnout-recovery': 'desk-stretch',
+    'deep-sleep': 'white-noise',
   };
 
   function loadUserState() {
@@ -26,11 +43,7 @@
   }
 
   function getTodayString() {
-    const now = new Date();
-    const y = now.getFullYear();
-    const m = String(now.getMonth() + 1).padStart(2, '0');
-    const d = String(now.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
+    return OC.getTodayString();
   }
 
   function getDaysDiff(dateStrA, dateStrB) {
@@ -41,11 +54,9 @@
 
   function validateStreak(state) {
     const today = getTodayString();
-
     if (!state.lastCompletedDate) return state;
 
     const diff = getDaysDiff(state.lastCompletedDate, today);
-
     if (diff === 0 || diff === 1) return state;
 
     state.streak = 0;
@@ -57,23 +68,22 @@
     const today = getTodayString();
 
     if (state.lastCompletedDate === today) {
-      return { ...state, alreadyDone: true };
+      state.alreadyDone = true;
+      return state;
     }
 
     if (state.lastCompletedDate) {
       const diff = getDaysDiff(state.lastCompletedDate, today);
-      if (diff === 1) {
-        state.streak += 1;
-      } else if (diff > 1) {
-        state.streak = 1;
-      }
+      if (diff === 1) state.streak += 1;
+      else if (diff > 1) state.streak = 1;
     } else {
       state.streak = 1;
     }
 
     state.lastCompletedDate = today;
+    state.alreadyDone = false;
     saveUserState(state);
-    return { ...state, alreadyDone: false };
+    return state;
   }
 
   function updateStreakUI(state) {
@@ -106,7 +116,6 @@
       const phase = phases[phaseIndex];
       guideEl.textContent = phase.label;
       guideEl.className = 'breathe-guide ' + phase.className;
-
       setTimeout(() => {
         phaseIndex = (phaseIndex + 1) % phases.length;
         setPhase();
@@ -121,17 +130,45 @@
     OC.typeText(script, outputEl, cursorEl);
   }
 
+  function resolveMeditationTrack(presetKey, userLevel) {
+    let trackId = MEDITATION_TRACKS[presetKey] || 'white-noise';
+    const required = OC.getLevelRequired(trackId);
+
+    if (userLevel < required) {
+      trackId = TRACK_LEVEL_FALLBACK[trackId] || 'white-noise';
+    }
+
+    return trackId;
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     let userState = validateStreak(loadUserState());
     updateStreakUI(userState);
 
-    const paywall = OC.initPaywall(() => userState, (state) => {
-      userState = state;
-    });
+    document.getElementById('todayDate').textContent = OC.formatTodayDate();
+
+    const levelGate = OC.initLevelGate(() => userState);
+    const progress = OC.initProgress(() => userState, saveUserState, levelGate.updateLevelUI);
+    const audioUI = OC.initAudioPlayerUI();
 
     const outputEl = document.getElementById('aiOutputText');
     const cursorEl = document.getElementById('typingCursor');
     const stressInput = document.getElementById('stressInput');
+
+    async function handleAISession(script, presetKey) {
+      runAIScript(script, outputEl, cursorEl);
+
+      const trackId = resolveMeditationTrack(presetKey, userState.level || 1);
+      await audioUI.play(trackId);
+
+      progress.addXP(progress.rewards.aiScript, 'AI 명상 스크립트');
+      progress.refresh();
+    }
+
+    OC.initJournal(() => userState, saveUserState, (amount, reason) => {
+      progress.addXP(amount, reason);
+      progress.refresh();
+    });
 
     document.getElementById('completeRitualBtn').addEventListener('click', () => {
       const result = completeRitual(userState);
@@ -139,6 +176,9 @@
       updateStreakUI(userState);
 
       if (result.alreadyDone) return;
+
+      progress.addXP(progress.rewards.ritualComplete, '오늘의 명상 완료');
+      progress.refresh();
 
       const messages = [
         '오늘도 한 걸음 더 나아갔어요. 멋져요! 🌿',
@@ -150,39 +190,34 @@
 
     document.getElementById('generateBtn').addEventListener('click', () => {
       const input = stressInput.value.trim();
-      if (!paywall.checkAccess(false)) return;
-      runAIScript(OC.generateCustomScript(input), outputEl, cursorEl);
+      handleAISession(OC.generateCustomScript(input), 'custom');
     });
 
     document.querySelectorAll('[data-preset]').forEach((btn) => {
       btn.addEventListener('click', () => {
         const key = btn.dataset.preset;
         const preset = OC.getPresetScript(key);
-
-        if (!paywall.checkAccess(preset.isFree)) return;
-
         stressInput.value = preset.label;
-        runAIScript(preset.script, outputEl, cursorEl);
+        handleAISession(preset.script, key);
       });
     });
 
-    const audioUI = OC.initAudioPlayerUI();
-
     document.querySelectorAll('[data-audio]').forEach((btn) => {
       btn.addEventListener('click', async () => {
-        const isPremium = btn.dataset.premium === 'true';
-        if (!paywall.checkAccess(!isPremium)) return;
-
         const trackId = btn.dataset.audio;
-        const title = OC.getTrackTitle(trackId);
+        const itemEl = btn.closest('[data-level-required]');
+        const requiredLevel = Number(
+          itemEl?.dataset.levelRequired ?? OC.getLevelRequired(trackId) ?? 0
+        );
+
+        if (!levelGate.checkLevelAccess(requiredLevel)) return;
+
         const started = await audioUI.play(trackId);
 
         if (started) {
-          runAIScript(
-            `「${title}」 사운드를 재생합니다.\n편안한 자세로 앉아, 호흡에 집중해 보세요.\n볼륨을 조절하며 브리드 버블과 함께 천천히 시작해요.`,
-            outputEl,
-            cursorEl
-          );
+          progress.addXP(progress.rewards.audioPlay, '오디오 재생');
+          progress.refresh();
+          runAIScript(OC.getSessionScript(trackId), outputEl, cursorEl);
         }
       });
     });
