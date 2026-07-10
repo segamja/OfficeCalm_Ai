@@ -25,7 +25,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=1.4">
+  <link rel="stylesheet" href="css/style.css?v=1.5">
 </head>
 <body>
   <div class="app">
@@ -67,10 +67,9 @@
             </div>
           </div>
 
+          <p class="home-hero__quote" id="dailyQuote" aria-live="polite"></p>
+
           <div class="home-hero__actions">
-            <button class="btn btn--notify" id="notifyBtn" type="button" title="명상 리마인더 알림">
-              🔕 알림 OFF
-            </button>
             <button class="btn btn--primary" id="completeRitualBtn" type="button">
               오늘의 명상 완료
             </button>
@@ -134,7 +133,7 @@
           AI 명상 스크립트 생성
         </button>
 
-        <div class="ai-output" aria-live="polite">
+        <div class="ai-output" id="aiOutput" aria-live="polite">
           <div class="ai-output__cursor-line">
             <span id="aiOutputText"></span>
             <span class="typing-cursor" id="typingCursor" aria-hidden="true">|</span>
@@ -204,6 +203,34 @@
                 <span class="audio-item__title">책상 앞 스트레칭</span>
                 <span class="audio-item__meta">3분 · 몸 풀기 사운드</span>
               </span>
+            </button>
+          </li>
+          <li class="audio-item audio-item--free is-unlocked">
+            <button class="audio-item__btn" data-audio="meeting-calm" type="button">
+              <span class="audio-item__icon">☕</span>
+              <span class="audio-item__info">
+                <span class="audio-item__title">회의 후 진정 호흡</span>
+                <span class="audio-item__meta">3분 · 긴장 풀기 사운드</span>
+              </span>
+            </button>
+          </li>
+          <li class="audio-item audio-item--free is-unlocked">
+            <button class="audio-item__btn" data-audio="afternoon-focus" type="button">
+              <span class="audio-item__icon">⚡</span>
+              <span class="audio-item__info">
+                <span class="audio-item__title">오후 집중 부스터</span>
+                <span class="audio-item__meta">5분 · 리프레시 사운드</span>
+              </span>
+            </button>
+          </li>
+          <li class="audio-item audio-item--locked is-locked" data-level-required="2">
+            <button class="audio-item__btn" data-audio="commute-winddown" type="button">
+              <span class="audio-item__icon">🌆</span>
+              <span class="audio-item__info">
+                <span class="audio-item__title">퇴근길 마음 비우기</span>
+                <span class="audio-item__meta">10분 · Lv.2 해금</span>
+              </span>
+              <span class="audio-item__lock">Lv.2</span>
             </button>
           </li>
           <li class="audio-item audio-item--locked is-locked" data-level-required="3">
@@ -308,14 +335,13 @@
     </div>
   </div>
 
-  <script src="js/ai-engine.js?v=1.4"></script>
-  <script src="js/level-gate.js?v=1.4"></script>
-  <script src="js/audio-player.js?v=1.4"></script>
-  <script src="js/gallery.js?v=1.4"></script>
-  <script src="js/progress.js?v=1.4"></script>
-  <script src="js/journal.js?v=1.4"></script>
-  <script src="js/notifications.js?v=1.4"></script>
-  <script src="js/tabs.js?v=1.4"></script>
-  <script src="js/app.js?v=1.4"></script>
+  <script src="js/ai-engine.js?v=1.5"></script>
+  <script src="js/level-gate.js?v=1.5"></script>
+  <script src="js/audio-player.js?v=1.5"></script>
+  <script src="js/gallery.js?v=1.5"></script>
+  <script src="js/progress.js?v=1.5"></script>
+  <script src="js/journal.js?v=1.5"></script>
+  <script src="js/tabs.js?v=1.5"></script>
+  <script src="js/app.js?v=1.5"></script>
 </body>
 </html>

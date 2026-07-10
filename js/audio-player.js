@@ -67,6 +67,27 @@
 [마무리]
 회복은 하루 만에 오지 않습니다. 오늘 이 15분이 내일의 나를 지켜줍니다.`,
     },
+    'meeting-calm': {
+      title: '회의 후 진정 호흡',
+      src: 'assets/audio/desk-stretch.mp3',
+      levelRequired: 0,
+      sessionScript: `[회의 후 진정 호흡 · 3분]
+긴장된 회의가 끝났습니다. 몸과 마음의 온도를 내려보세요.`,
+    },
+    'afternoon-focus': {
+      title: '오후 집중 부스터',
+      src: 'assets/audio/white-noise.mp3',
+      levelRequired: 0,
+      sessionScript: `[오후 집중 부스터 · 5분]
+점심 이후 흐려진 집중력을 부드럽게 되살립니다.`,
+    },
+    'commute-winddown': {
+      title: '퇴근길 마음 비우기',
+      src: 'assets/audio/burnout-recovery.mp3',
+      levelRequired: 2,
+      sessionScript: `[퇴근길 마음 비우기 · 10분]
+하루의 무게를 내려놓고, 집으로 가는 길을 가볍게 만듭니다.`,
+    },
   };
 
   let audioEl = null;

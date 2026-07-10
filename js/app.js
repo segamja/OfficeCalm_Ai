@@ -33,7 +33,23 @@
     'desk-stretch': '책상 앞 스트레칭 재생 중 — 몸을 천천히 풀어 주세요.',
     'deep-sleep': '야근 후 딥슬립 재생 중 — 긴장을 내려놓고 쉬어 가세요.',
     'burnout-recovery': '번아웃 회복 명상 재생 중 — 자기 자비를 회복해 보세요.',
+    'meeting-calm': '회의 후 진정 호흡 재생 중 — 어깨 힘을 빼고 천천히 호흡하세요.',
+    'afternoon-focus': '오후 집중 부스터 재생 중 — 잠시 눈을 감고 리셋해 보세요.',
+    'commute-winddown': '퇴근길 마음 비우기 재생 중 — 오늘은 여기까지, 수고했어요.',
   };
+
+  const DAILY_QUOTES = [
+    '오늘도 여기까지 온 나, 정말 잘하고 있어요.',
+    '완벽하지 않아도 괜찮아요. 지금 이 순간만큼은 충분합니다.',
+    '쉬어가는 것도 업무의 일부예요. 잠시 멈춰도 괜찮습니다.',
+    '나는 내 일을 해내고 있고, 그것만으로도 대단해요.',
+    '숨 한 번 고르고, 오늘의 나에게 "고생했어"라고 말해 주세요.',
+    '비교하지 않아도 돼요. 어제의 나보다 조금만 나아지면 충분합니다.',
+    '지금 이 긴장도 곧 지나갑니다. 나는 충분히 잘 해낼 수 있어요.',
+    '작은 성취도 성취예요. 오늘의 한 걸음을 인정해 주세요.',
+    '내 마음을 돌보는 시간, 절대 낭비가 아니에요.',
+    '힘들 때 멈추는 건 포기가 아니라, 다시 나아가기 위한 준비예요.',
+  ];
 
   function loadUserState() {
     try {
@@ -132,11 +148,34 @@
     setPhase();
   }
 
+  function getDailyQuote() {
+    const today = getTodayString();
+    let hash = 0;
+    for (let i = 0; i < today.length; i++) {
+      hash = (hash * 31 + today.charCodeAt(i)) >>> 0;
+    }
+    return DAILY_QUOTES[hash % DAILY_QUOTES.length];
+  }
+
+  function initDailyQuote() {
+    const quoteEl = document.getElementById('dailyQuote');
+    if (quoteEl) quoteEl.textContent = getDailyQuote();
+  }
+
+  function scrollInPanel(panel, target, offset = 12) {
+    if (!panel || !target) return;
+    const panelRect = panel.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+    const top = targetRect.top - panelRect.top + panel.scrollTop - offset;
+    panel.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     let userState = validateStreak(loadUserState());
     updateStreakUI(userState);
 
     document.getElementById('todayDate').textContent = OC.formatTodayDate();
+    initDailyQuote();
 
     const levelGate = OC.initLevelGate(() => userState);
     const progress = OC.initProgress(() => userState, saveUserState, levelGate.updateLevelUI);
@@ -170,12 +209,13 @@
     function scrollToAiAction() {
       const panel = document.getElementById('tabPanelAi');
       const target = document.getElementById('generateBtn');
-      if (!panel || !target) return;
+      scrollInPanel(panel, target);
+    }
 
-      const panelRect = panel.getBoundingClientRect();
-      const targetRect = target.getBoundingClientRect();
-      const offset = targetRect.top - panelRect.top + panel.scrollTop - 12;
-      panel.scrollTo({ top: Math.max(0, offset), behavior: 'smooth' });
+    function scrollToAiOutput() {
+      const panel = document.getElementById('tabPanelAi');
+      const target = document.getElementById('aiOutput');
+      scrollInPanel(panel, target);
     }
 
     function hideBreatheCta() {
@@ -253,7 +293,7 @@
     });
 
     document.getElementById('generateBtn').addEventListener('click', () => {
-      scrollToAiAction();
+      scrollToAiOutput();
       const input = stressInput.value.trim();
       handleAISession(OC.generateCustomScript(input), 'custom');
     });
@@ -305,7 +345,6 @@
       });
     });
 
-    OC.initNotifications(() => userState);
     OC.initGallery();
     initBreatheGuide();
   });
