@@ -2,6 +2,24 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
+  <script>
+    (function () {
+      if (location.protocol === 'file:') return;
+
+      var path = location.pathname;
+      if (path.endsWith('.html')) {
+        path = path.slice(0, path.lastIndexOf('/') + 1);
+      } else if (!path.endsWith('/')) {
+        path += '/';
+      }
+
+      if (location.hostname.endsWith('github.io') && path !== '/') {
+        var base = document.createElement('base');
+        base.href = location.origin + path;
+        document.head.appendChild(base);
+      }
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OfficeCalm AI — 직장인 명상 대시보드</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -151,9 +169,7 @@
           <img
             class="library-gallery__img"
             id="libraryGalleryImg"
-            src=""
             alt="명상 힐링 이미지"
-            loading="lazy"
           >
         </div>
 

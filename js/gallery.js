@@ -3,13 +3,17 @@
  */
 (function (OC) {
   const GALLERY_IMAGES = [
-    'assets/images/claudio-testa--SO3JtE3gZo-unsplash.jpg',
-    'assets/images/goutham-krishna-h5wvMCdOV3w-unsplash.jpg',
-    'assets/images/johannes-andersson-UCd78vfC8vU-unsplash.jpg',
-    'assets/images/johnson-martin-zpq2DMidOY0-unsplash.jpg',
-    'assets/images/masaaki-komori-6EfKUoRTe8I-unsplash.jpg',
-    'assets/images/studio-dekorasyon-vngzm4P2BTs-unsplash.jpg',
+    'assets/images/calm-01.jpg',
+    'assets/images/calm-02.jpg',
+    'assets/images/calm-03.jpg',
+    'assets/images/calm-04.jpg',
+    'assets/images/calm-05.jpg',
+    'assets/images/calm-06.jpg',
   ];
+
+  function assetUrl(path) {
+    return new URL(path, document.baseURI).href;
+  }
 
   const ROTATE_MS = 8000;
   const FADE_MS = 500;
@@ -40,7 +44,7 @@
 
       imgEl.addEventListener('load', onDone);
       imgEl.addEventListener('error', onDone);
-      imgEl.src = src;
+      imgEl.src = assetUrl(src);
 
       if (imgEl.complete) onDone();
     });
