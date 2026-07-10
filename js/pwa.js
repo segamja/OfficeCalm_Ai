@@ -3,12 +3,14 @@
  */
 (function (OC) {
   const DISMISS_KEY = 'mindly_pwa_install_dismissed';
-  const UPDATE_CHECK_MS = 30 * 60 * 1000;
+  const UPDATE_CHECK_MS = 5 * 60 * 1000;
+  const STANDALONE_UPDATE_CHECK_MS = 60 * 1000;
 
   let deferredPrompt = null;
   let swRegistration = null;
   let refreshing = false;
   let updateBannerVisible = false;
+  let updateCheckTimer = null;
   const installReadyCallbacks = [];
 
   function getBasePath() {
@@ -73,6 +75,14 @@
     });
   }
 
+  function showUpdateToast(message) {
+    const toast = document.getElementById('xpToast');
+    if (!toast) return;
+    toast.textContent = message;
+    toast.classList.add('is-visible');
+    setTimeout(() => toast.classList.remove('is-visible'), 2800);
+  }
+
   function showUpdateBanner() {
     if (updateBannerVisible) return;
     const banner = document.getElementById('pwaUpdateBanner');
@@ -87,15 +97,37 @@
     updateBannerVisible = false;
   }
 
+  function applyUpdate() {
+    const waiting = swRegistration?.waiting;
+    if (!waiting) {
+      window.location.reload();
+      return;
+    }
+    waiting.postMessage({ type: 'SKIP_WAITING' });
+  }
+
   function handleWaitingWorker(worker) {
     if (!navigator.serviceWorker.controller) return;
-    showUpdateBanner();
 
+    console.info('[Mindly PWA] 새 버전 대기 중');
+
+    if (isStandalone()) {
+      showUpdateToast('새 버전을 적용합니다…');
+      hideUpdateBanner();
+      setTimeout(() => applyUpdate(), 800);
+      return;
+    }
+
+    showUpdateBanner();
     worker.addEventListener('statechange', () => {
-      if (worker.state === 'activated') {
-        hideUpdateBanner();
-      }
+      if (worker.state === 'activated') hideUpdateBanner();
     });
+  }
+
+  function checkForUpdate() {
+    if (!swRegistration) return;
+    swRegistration.update().catch((err) => console.warn('[Mindly PWA] 업데이트 확인 실패:', err));
+    if (swRegistration.waiting) handleWaitingWorker(swRegistration.waiting);
   }
 
   function setupUpdateDetection(registration) {
@@ -116,25 +148,20 @@
       });
     });
 
-    const checkForUpdate = () => {
-      registration.update().catch((err) => console.warn('[Mindly PWA] 업데이트 확인 실패:', err));
-    };
+    const interval = isStandalone() ? STANDALONE_UPDATE_CHECK_MS : UPDATE_CHECK_MS;
+
+    if (updateCheckTimer) clearInterval(updateCheckTimer);
+    updateCheckTimer = setInterval(checkForUpdate, interval);
 
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden) checkForUpdate();
     });
 
     window.addEventListener('focus', checkForUpdate);
-    setInterval(checkForUpdate, UPDATE_CHECK_MS);
-    setTimeout(checkForUpdate, 5000);
-  }
+    window.addEventListener('pageshow', () => checkForUpdate());
 
-  function applyUpdate() {
-    if (!swRegistration?.waiting) {
-      window.location.reload();
-      return;
-    }
-    swRegistration.waiting.postMessage({ type: 'SKIP_WAITING' });
+    setTimeout(checkForUpdate, 1000);
+    setTimeout(checkForUpdate, 5000);
   }
 
   function showInstallGuide() {
@@ -172,7 +199,7 @@
     if (!('serviceWorker' in navigator)) return null;
 
     const base = getBasePath();
-    const swUrl = base + 'service-worker.js?v=' + encodeURIComponent(OC.APP_VERSION || '2.2');
+    const swUrl = base + 'service-worker.js';
 
     try {
       swRegistration = await navigator.serviceWorker.register(swUrl, {
@@ -241,6 +268,12 @@
     window.location.reload();
   });
 
+  navigator.serviceWorker?.addEventListener('message', (event) => {
+    if (event.data?.type === 'SW_ACTIVATED') {
+      console.info('[Mindly PWA] SW 활성화:', event.data.version);
+    }
+  });
+
   if (window.__mindlyDeferredPrompt) {
     deferredPrompt = window.__mindlyDeferredPrompt;
     notifyInstallReady();
@@ -279,13 +312,9 @@
       hideBanner();
     });
 
-    updateBtn?.addEventListener('click', () => {
-      applyUpdate();
-    });
+    updateBtn?.addEventListener('click', () => applyUpdate());
 
-    updateDismissBtn?.addEventListener('click', () => {
-      hideUpdateBanner();
-    });
+    updateDismissBtn?.addEventListener('click', () => hideUpdateBanner());
 
     document.getElementById('pwaInstallGuideCloseBtn')?.addEventListener('click', hideInstallGuide);
     document.getElementById('pwaInstallGuideBackdrop')?.addEventListener('click', hideInstallGuide);
@@ -303,12 +332,13 @@
     }
   }
 
-  OC.APP_VERSION = '2.2';
+  OC.APP_VERSION = '2.3';
   OC.initPWA = initPWA;
   OC.isStandalone = isStandalone;
   OC.promptInstall = promptInstall;
   OC.isInstallReady = isInstallReady;
   OC.applyAppUpdate = applyUpdate;
+  OC.checkForUpdate = checkForUpdate;
   OC.getPWAStatus = () => ({
     installReady: isInstallReady(),
     standalone: isStandalone(),

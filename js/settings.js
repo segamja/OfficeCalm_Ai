@@ -3,7 +3,7 @@
  * 향후 Firebase 로그인·Push Notification 연동 확장 지점
  */
 (function (OC) {
-  const APP_VERSION = '2.2';
+  const APP_VERSION = '2.3';
 
   const COMING_SOON_ITEMS = ['notifications', 'daily-goal', 'theme', 'language'];
 
