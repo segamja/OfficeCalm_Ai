@@ -117,21 +117,26 @@
   }
 
   async function playTrack(trackId) {
-    if (!TRACKS[trackId]) return false;
-    if (!musicEnabled) return false;
+    if (!TRACKS[trackId]) return { ok: false, reason: 'unknown' };
+    if (!musicEnabled) return { ok: false, reason: 'disabled' };
 
     const audio = ensureAudio();
 
     if (currentTrackId === trackId && isPlaying) {
       audio.pause();
       isPlaying = false;
-      return false;
+      return { ok: false, reason: 'paused' };
     }
 
     if (currentTrackId === trackId && !isPlaying) {
-      await audio.play();
-      isPlaying = true;
-      return true;
+      try {
+        await audio.play();
+        isPlaying = true;
+        return { ok: true };
+      } catch (err) {
+        console.error('재생 실패:', err);
+        return { ok: false, reason: 'error' };
+      }
     }
 
     stop();
@@ -144,12 +149,12 @@
     try {
       await audio.play();
       isPlaying = true;
-      return true;
+      return { ok: true };
     } catch (err) {
       console.error('재생 실패:', err);
       isPlaying = false;
       currentTrackId = null;
-      return false;
+      return { ok: false, reason: 'error' };
     }
   }
 
@@ -210,57 +215,73 @@
     const playPauseBtn = document.getElementById('audioPlayPauseBtn');
     const stopBtn = document.getElementById('audioStopBtn');
     const volumeInput = document.getElementById('audioVolume');
+    const libraryPlayerEl = document.getElementById('libraryNowPlaying');
+    const libraryTitleEl = document.getElementById('libraryNowPlayingTitle');
 
     function updateUI() {
       const state = getPlaybackState();
+      const isActive = Boolean(state.trackId && state.isPlaying);
 
       if (!state.trackId) {
-        playerEl.hidden = true;
+        if (playerEl) playerEl.hidden = true;
         document.querySelectorAll('.audio-item').forEach((el) => el.classList.remove('is-playing'));
+        if (libraryPlayerEl) libraryPlayerEl.hidden = true;
         return;
       }
 
-      playerEl.hidden = false;
-      titleEl.textContent = state.title;
-      playPauseBtn.textContent = state.isPlaying ? '⏸' : '▶';
-      playPauseBtn.setAttribute('aria-label', state.isPlaying ? '일시정지' : '재생');
+      if (playerEl) {
+        playerEl.hidden = false;
+        titleEl.textContent = state.title;
+        playPauseBtn.textContent = state.isPlaying ? '⏸' : '▶';
+        playPauseBtn.setAttribute('aria-label', state.isPlaying ? '일시정지' : '재생');
+      }
 
       document.querySelectorAll('.audio-item').forEach((el) => {
         const btn = el.querySelector('[data-audio]');
         el.classList.toggle('is-playing', btn?.dataset.audio === state.trackId && state.isPlaying);
       });
+
+      if (libraryPlayerEl && libraryTitleEl) {
+        libraryPlayerEl.hidden = !isActive;
+        if (isActive) libraryTitleEl.textContent = state.title;
+      }
     }
 
-    playPauseBtn.addEventListener('click', () => {
+    playPauseBtn?.addEventListener('click', () => {
       togglePlayback();
       updateUI();
     });
 
-    stopBtn.addEventListener('click', () => {
+    stopBtn?.addEventListener('click', () => {
       stop();
       updateUI();
       if (onTrackChange) onTrackChange(null);
     });
 
-    volumeInput.addEventListener('input', (e) => {
+    volumeInput?.addEventListener('input', (e) => {
       setVolume(Number(e.target.value) / 100);
     });
 
     return {
       updateUI,
-      async play(trackId) {
-        if (!musicEnabled) return false;
-        const started = await playTrack(trackId);
+      stop() {
+        stop();
         updateUI();
-        if (onTrackChange) onTrackChange(trackId, started);
-        return started;
+        if (onTrackChange) onTrackChange(null);
+      },
+      async play(trackId) {
+        if (!musicEnabled) return { ok: false, reason: 'disabled' };
+        const result = await playTrack(trackId);
+        updateUI();
+        if (onTrackChange) onTrackChange(result.ok ? trackId : null, result.ok);
+        return result;
       },
     };
   }
 
   function initMusicToggle(audioUI) {
     const toggleBtn = document.getElementById('musicToggleBtn');
-    if (!toggleBtn) return;
+    if (!toggleBtn) return { updateToggleUI: () => {} };
 
     function updateToggleUI() {
       toggleBtn.textContent = musicEnabled ? '🎵 음악 재생 ON' : '🎵 음악 재생 OFF';
@@ -278,12 +299,14 @@
     });
 
     updateToggleUI();
+    return { updateToggleUI };
   }
 
   OC.getTrackTitle = getTrackTitle;
   OC.getSessionScript = getSessionScript;
   OC.getLevelRequired = getLevelRequired;
   OC.isMusicEnabled = isMusicEnabled;
+  OC.setMusicEnabled = setMusicEnabled;
   OC.initAudioPlayerUI = initAudioPlayerUI;
   OC.initMusicToggle = initMusicToggle;
 })(window.OfficeCalm = window.OfficeCalm || {});

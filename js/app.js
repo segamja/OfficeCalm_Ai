@@ -156,8 +156,27 @@
     const audioUI = OC.initAudioPlayerUI((trackId) => {
       if (!trackId) hideLibraryHint();
     });
-    OC.initMusicToggle(audioUI);
+    const musicToggle = OC.initMusicToggle(audioUI);
     const tabsApi = OC.initTabs();
+
+    function showToast(message) {
+      const toast = document.getElementById('xpToast');
+      if (!toast) return;
+      toast.textContent = message;
+      toast.classList.add('is-visible');
+      setTimeout(() => toast.classList.remove('is-visible'), 2800);
+    }
+
+    function scrollToAiAction() {
+      const panel = document.getElementById('tabPanelAi');
+      const target = document.getElementById('generateBtn');
+      if (!panel || !target) return;
+
+      const panelRect = panel.getBoundingClientRect();
+      const targetRect = target.getBoundingClientRect();
+      const offset = targetRect.top - panelRect.top + panel.scrollTop - 12;
+      panel.scrollTo({ top: Math.max(0, offset), behavior: 'smooth' });
+    }
 
     function hideBreatheCta() {
       if (breatheCtaEl) breatheCtaEl.hidden = true;
@@ -234,6 +253,7 @@
     });
 
     document.getElementById('generateBtn').addEventListener('click', () => {
+      scrollToAiAction();
       const input = stressInput.value.trim();
       handleAISession(OC.generateCustomScript(input), 'custom');
     });
@@ -243,8 +263,14 @@
         const key = btn.dataset.preset;
         const preset = OC.getPresetScript(key);
         stressInput.value = preset.label;
+        scrollToAiAction();
         handleAISession(preset.script, key);
       });
+    });
+
+    document.getElementById('libraryStopBtn')?.addEventListener('click', () => {
+      audioUI.stop();
+      hideLibraryHint();
     });
 
     document.querySelectorAll('[data-audio]').forEach((btn) => {
@@ -258,21 +284,21 @@
         if (!levelGate.checkLevelAccess(requiredLevel)) return;
 
         if (!OC.isMusicEnabled()) {
-          const toast = document.getElementById('xpToast');
-          if (toast) {
-            toast.textContent = '홈 탭에서 음악 재생을 켜주세요';
-            toast.classList.add('is-visible');
-            setTimeout(() => toast.classList.remove('is-visible'), 2200);
-          }
-          return;
+          OC.setMusicEnabled(true);
+          musicToggle.updateToggleUI();
         }
 
-        const started = await audioUI.play(trackId);
+        const result = await audioUI.play(trackId);
 
-        if (started) {
+        if (result.ok) {
           progress.addXP(progress.rewards.audioPlay, '오디오 재생');
           progress.refresh();
           showLibraryHint(trackId);
+        } else if (result.reason === 'paused') {
+          hideLibraryHint();
+        } else if (result.reason === 'error' || result.reason === 'unknown') {
+          showToast('재생에 실패했습니다. 네트워크를 확인해 주세요.');
+          hideLibraryHint();
         } else {
           hideLibraryHint();
         }

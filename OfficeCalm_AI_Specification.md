@@ -1,6 +1,6 @@
 # [기술명세서] 직장인 타겟 AI 명상 웹앱 (OfficeCalm AI)
 
-> **문서 버전:** v1.3 · **최종 갱신:** 2026-07-11  
+> **문서 버전:** v1.4 · **최종 갱신:** 2026-07-11  
 > **배포:** [https://segamja.github.io/OfficeCalm_Ai/](https://segamja.github.io/OfficeCalm_Ai/)
 
 ---
@@ -45,7 +45,7 @@ OfficeCalm_Ai/
 
 | 파일 | 역할 |
 |------|------|
-| `index.html` | 5개 탭 패널(홈/AI/브리드/라이브러리/감사일기), 하단 탭 바, 브리드 CTA, 라이브러리 재생 안내 |
+| `index.html` | 5개 탭 패널, 하단 탭 바, 브리드 CTA, 라이브러리 재생 안내·미니 플레이어 |
 | `css/style.css` | max-width 640px 중앙 정렬, 단일 활성 패널, 홈 대시보드·탭 바·플레이어 숨김 처리 |
 | `js/app.js` | localStorage 로드, AI/라이브러리/음악/탭/저널 초기화, AI·라이브러리 동작 분리 |
 | `js/tabs.js` | `setActiveTab()` — 활성 패널 1개, `sessionStorage` 탭 복원, 브리드 CTA 연동 |
@@ -77,15 +77,17 @@ OfficeCalm_Ai/
 | 홈 | `home` | 로고, 서브타이틀, XP·레벨·Mind Energy, 스트릭, 알림, 명상 완료, 음악 ON/OFF + 플레이어 |
 | AI 진단실 | `ai` | 상황 입력, 퀵 프리셋(코칭 스크립트), AI 출력, 완료 후 브리드 CTA |
 | 오피스 브리드 | `breathe` | 호흡 버블(4-2-4) + 힐링 이미지 갤러리 (8초 랜덤 전환) |
-| 라이브러리 | `library` | 배경음·효과음 목록, 재생 안내 (`#libraryNowPlayingHint`) |
+| 라이브러리 | `library` | 배경음·효과음 목록, 재생 안내 (`#libraryNowPlayingHint`), 미니 플레이어 (`#libraryNowPlaying`) |
 | 감사일기 | `journal` | 감사일기 작성 + 히스토리 |
 
 ### UX 규칙
 
+- AI 퀵 프리셋 클릭 시 `#generateBtn`까지 패널 내 자동 스크롤
 - AI 스크립트 타이핑 완료 시 `#aiBreatheCta` 표시 → `#goToBreatheBtn` 클릭 시 `setActiveTab('breathe')`
-- 라이브러리 트랙 재생 시 **AI 출력창 변경 없음** — 라이브러리 패널 안내만 표시
-- 음악 OFF 시 라이브러리 클릭 → 토스트 ("홈 탭에서 음악 재생을 켜주세요")
-- `#audioPlayer`는 `hidden` + `.audio-player[hidden] { display: none !important }` 로 이중 숨김
+- 라이브러리 트랙 클릭 시 **음악 자동 ON + 재생** (클릭 제스처로 모바일 정책 충족)
+- 라이브러리 트랙 재생 시 AI 출력창 변경 없음 — 패널 안내 + 미니 플레이어만 표시
+- 재생 실패 시 토스트 안내
+- `#audioPlayer`는 `hidden` + CSS로 이중 숨김
 
 ### AI vs 라이브러리 역할 분리
 
@@ -122,6 +124,7 @@ OfficeCalm_Ai/
 ### 4.2. AI 스트레스 진단 및 명상 스크립트
 
 - 퀵 프리셋 4종: 회의 5분 전, 상사 잔소리 직후, 출근길 무기력, 야근 번아웃
+- 프리셋·생성 버튼 클릭 시 `#generateBtn`까지 smooth scroll
 - 자유 입력 + `typeText()` 타이핑 효과
 - 타이핑 완료 `onComplete` → `#aiBreatheCta` 표시
 - 음악 ON 시 상황별 BGM 자동 재생 (레벨 미달 시 대체 트랙)
@@ -147,8 +150,8 @@ OfficeCalm_Ai/
 | `deep-sleep` | 야근 후 딥슬립 | 20분 | **Lv.3** |
 | `burnout-recovery` | 번아웃 회복 명상 | 15분 | **Lv.5** |
 
-- 재생 시 `LIBRARY_HINTS` 맵 기반 패널 안내 표시
-- 플레이어 UI는 홈 탭 전용
+- 재생 시 `LIBRARY_HINTS` 안내 + `#libraryNowPlaying` 미니 플레이어 표시
+- 플레이어 UI: 홈 탭 전체 플레이어 + 라이브러리 탭 미니 플레이어 동기화
 
 ### 4.5. XP · 레벨 · Mind Energy
 
@@ -189,7 +192,9 @@ OfficeCalm_Ai/
 ### 4.8. 음악 재생 토글 (`audio-player.js`)
 
 - `musicEnabled` 플래그로 재생 허용 제어
-- `initMusicToggle()` — 홈 `#musicToggleBtn` 연동
+- `setMusicEnabled(enabled)` 외부 노출 — 라이브러리 클릭 시 자동 ON
+- `initMusicToggle()` → `{ updateToggleUI }` 반환
+- `play()` → `{ ok, reason }` 결과 반환
 - OFF 전환 시 `stop()` 호출 → 재생 중지 및 플레이어 숨김
 
 ### 4.9. 감사일기 (`journal.js`)
@@ -227,6 +232,8 @@ OfficeCalm_Ai/
 | AI 코칭 스크립트 + 타이핑 | ✅ 완료 | 4종 프리셋 + 자유 입력 |
 | AI 완료 후 브리드 CTA | ✅ 완료 | `#goToBreatheBtn` → 브리드 탭 |
 | AI / 라이브러리 역할 분리 | ✅ 완료 | 라이브러리는 패널 안내만 |
+| 라이브러리 원탭 재생 + 미니 플레이어 | ✅ 완료 | 클릭=자동 ON, 모바일 대응 |
+| AI 프리셋 자동 스크롤 | ✅ 완료 | generateBtn까지 smooth scroll |
 | 오피스 브리드 + 갤러리 | ✅ 완료 | 4-2-4 호흡, 8초 이미지 전환 |
 | 콘텐츠 라이브러리 + 레벨 게이트 | ✅ 완료 | Lv.3 딥슬립, Lv.5 번아웃 회복 |
 | 감사일기 + 히스토리 | ✅ 완료 | localStorage 영속화 |
@@ -247,3 +254,4 @@ OfficeCalm_Ai/
 | v1.1 | 2026-07 | 레벨 게이트 도입, 페이월 제거 |
 | v1.2 | 2026-07 | 5탭 레이아웃, 홈 대시보드, 음악 토글 |
 | v1.3 | 2026-07-11 | PC·모바일 5탭 통합, 모바일 GUI 수정, AI/라이브러리 분리, 브리드 CTA |
+| v1.4 | 2026-07-11 | AI 프리셋 스크롤, 라이브러리 원탭 재생, 미니 플레이어, 캐시 버스트 |
