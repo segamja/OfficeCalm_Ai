@@ -215,6 +215,42 @@
     }
   }
 
+  function ensureHomeLayoutOrder() {
+    const homeHero = document.querySelector('.home-hero');
+    if (!homeHero) return;
+
+    const brand = homeHero.querySelector('.home-hero__brand');
+    const hero = homeHero.querySelector('.hero-card');
+    if (!brand || !hero) return;
+
+    const brandFirst = !!(brand.compareDocumentPosition(hero) & Node.DOCUMENT_POSITION_FOLLOWING);
+    if (brandFirst) return;
+
+    const reloadKey = 'mindly_layout_fix_reload';
+    if (sessionStorage.getItem(reloadKey)) return;
+
+    sessionStorage.setItem(reloadKey, '1');
+    console.warn('[Mindly PWA] 이전 홈 레이아웃 캐시 감지 — 새로고침합니다');
+
+    const reload = () => {
+      const url = new URL(location.href);
+      url.searchParams.set('_layout', String(Date.now()));
+      location.replace(url.toString());
+    };
+
+    if ('caches' in window) {
+      caches
+        .keys()
+        .then((keys) =>
+          Promise.all(keys.filter((key) => key.startsWith('mindly-static-')).map((key) => caches.delete(key)))
+        )
+        .finally(reload);
+      return;
+    }
+
+    reload();
+  }
+
   function requestSwVersion() {
     const worker = navigator.serviceWorker.controller || swRegistration?.active;
     worker?.postMessage({ type: 'GET_VERSION' });
@@ -311,6 +347,8 @@
   registerServiceWorker();
 
   function initPWA() {
+    ensureHomeLayoutOrder();
+
     const banner = document.getElementById('pwaInstallBanner');
     const installBtn = document.getElementById('pwaInstallBtn');
     const dismissBtn = document.getElementById('pwaInstallDismissBtn');
@@ -372,7 +410,7 @@
     }
   }
 
-  const versionMeta = window.MindlyVersion || { APP_VERSION: '2.4', SW_CACHE_VERSION: 'mindly-v2.4' };
+  const versionMeta = window.MindlyVersion || { APP_VERSION: '2.5', SW_CACHE_VERSION: 'mindly-v2.5' };
   OC.APP_VERSION = versionMeta.APP_VERSION;
   OC.SW_CACHE_VERSION = versionMeta.SW_CACHE_VERSION;
   OC.activeSwVersion = null;

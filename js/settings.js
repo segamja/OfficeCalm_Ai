@@ -12,7 +12,7 @@
   };
 
   function getAppVersion() {
-    return OC.APP_VERSION || window.MindlyVersion?.APP_VERSION || '2.4';
+    return OC.APP_VERSION || window.MindlyVersion?.APP_VERSION || '2.5';
   }
 
   function showToast(message) {

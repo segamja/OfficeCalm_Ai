@@ -2,7 +2,7 @@
  * Mindly — Service Worker (오프라인 캐싱 + 버전 업데이트)
  * CACHE_VERSION 변경 시 새 버전으로 감지됩니다.
  */
-const CACHE_VERSION = 'mindly-v2.4';
+const CACHE_VERSION = 'mindly-v2.5';
 const CACHE_NAME = 'mindly-static-' + CACHE_VERSION;
 
 const PRECACHE_CRITICAL = [
@@ -99,6 +99,7 @@ async function cacheFirst(request) {
 }
 
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches
       .open(CACHE_NAME)
